@@ -17,11 +17,11 @@ const reportDb = [
     }
 ];
 
-export const getAllReports = (req, res, next) => {
+const getAllReports = (req, res, next) => {
     res.send(reportDb);
 };
 
-export const getReportById = (req, res, next) => {
+const getReportById = (req, res, next) => {
     const id = req.params.id;
     const report = reportDb.find(r => { return r.id === id; });
     if (report){
@@ -31,13 +31,13 @@ export const getReportById = (req, res, next) => {
     }
 };
 
-export const createReport = (req, res, next) => {
+const createReport = (req, res, next) => {
     const report = req.body;
     reportDb.push(report);
     res.sendStatus(201);
 };
 
-export const updateReport = (req, res, next) => {
+const updateReport = (req, res, next) => {
     const id = req.params.id;
     const report = reportDb.find(r => { return r.id === id });
     if (report) {
@@ -50,7 +50,7 @@ export const updateReport = (req, res, next) => {
     }
 };
 
-export const deleteReport = (req, res, next) => {
+const deleteReport = (req, res, next) => {
     const id = req.params.id;
     const report = reportDb.find(r => { return r.id === id });
     if (report) {
@@ -60,4 +60,8 @@ export const deleteReport = (req, res, next) => {
     } else {
         res.sendStatus(404);
     }
+};
+
+module.exports = {
+    getAllReports, getReportById, createReport, updateReport, deleteReport
 };

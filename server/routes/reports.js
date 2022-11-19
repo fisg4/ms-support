@@ -18,4 +18,4 @@ router.patch('/:id', reportController.updateReport);
 /* DELETE a report */
 router.delete('/:id', reportController.deleteReport);
 
-export default router;
+module.exports = router;

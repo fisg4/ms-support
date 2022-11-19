@@ -5,7 +5,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const logger = require('morgan');
-const routes = require('./routes');
+
+var helloRoutes = require('./routes/hello')
+var usersRoutes = require('./routes/users')
+var reportsRoutes = require('./routes/reports');
+var ticketsRoutes = require('./routes/tickets');
 
 const app = express();
 
@@ -17,9 +21,9 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 
-app.use('/api', routes.hello);
-app.use('/api/users', routes.users);
-app.use('/support/v1/reports', routes.reports)
-app.use('/support/v1/tickets', routes.tickets);
+app.use('/api', helloRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/support/v1/reports', reportsRoutes);
+app.use('/support/v1/tickets', ticketsRoutes);
 
 module.exports = app;
