@@ -19,5 +19,6 @@ app.use(compression());
 
 app.use('/api', routes.hello);
 app.use('/api/users', routes.users);
+app.use('/support/v1/tickets', routes.tickets);
 
 module.exports = app;
