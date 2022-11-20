@@ -6,6 +6,6 @@ const tickets = require('./tickets').default;
 module.exports = {
     hello,
     users,
-    reports
+    reports,
     tickets
   };

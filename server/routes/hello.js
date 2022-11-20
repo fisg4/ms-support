@@ -7,4 +7,4 @@ router.get('/', (req, res) => {
   res.send({ data: 'Hello from Generate-Express' });
 });
 
-export default router;
+module.exports = router;

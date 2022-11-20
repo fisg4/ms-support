@@ -17,11 +17,11 @@ const ticketDb = [
     }
 ];
 
-export const getAllTickets = (req, res, next) => {
+const getAllTickets = (req, res, next) => {
         res.send(ticketDb);
 };
 
-export const getTicketById = (req, res, next) => {
+const getTicketById = (req, res, next) => {
     var ticketId = req.params.id;
 
     var ticket = ticketDb.find(t => {
@@ -35,7 +35,7 @@ export const getTicketById = (req, res, next) => {
     }
 };
 
-export const createTicket = (req, res, next) => {
+const createTicket = (req, res, next) => {
     var ticket = req.body;
     const lastTicketId = ticketDb.length;
 
@@ -52,7 +52,7 @@ export const createTicket = (req, res, next) => {
     res.sendStatus(201);
 };
 
-  export const updateTicket = (req, res, next) => {
+const updateTicket = (req, res, next) => {
     var ticketId = req.params.id;
 
     const ticket = ticketDb.find(t => {
@@ -69,7 +69,7 @@ export const createTicket = (req, res, next) => {
     }
 };
 
-export const deleteTicket = (req, res, next) => {
+const deleteTicket = (req, res, next) => {
     const ticketId = req.params.id;
 
     const ticket = ticketDb.find(t => {
@@ -83,4 +83,8 @@ export const deleteTicket = (req, res, next) => {
     } else {
         res.sendStatus(404);
     }
+};
+
+module.exports = {
+    getAllTickets, getTicketById, createTicket, updateTicket, deleteTicket
 };

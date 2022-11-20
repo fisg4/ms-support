@@ -18,4 +18,4 @@ router.patch('/:id', ticketController.updateTicket);
 /* DELETE ticket */
 router.delete('/:id', ticketController.deleteTicket);
 
-export default router;
+module.exports = router;

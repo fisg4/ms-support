@@ -6,4 +6,4 @@ const router = express.Router();
 /* GET all users */
 router.get('/', userController.getAllUsers);
 
-export default router;
+module.exports = router;
