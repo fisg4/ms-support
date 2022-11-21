@@ -21,7 +21,7 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 
-app.use('/api', helloRoutes);
+app.use('/', helloRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/support/v1/reports', reportsRoutes);
 app.use('/support/v1/tickets', ticketsRoutes);
