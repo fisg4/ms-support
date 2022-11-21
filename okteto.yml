@@ -1,0 +1,13 @@
+build:
+  ms-support:
+    context: .
+
+deploy:
+  - helm upgrade --install ms-support chart
+    --set support.image=${OKTETO_BUILD_MS_SUPPORT_IMAGE}
+
+dev:
+  ms-support:
+    command: npm start
+    sync:
+      -.:/app
