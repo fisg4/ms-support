@@ -10,4 +10,4 @@ dev:
   ms-support:
     command: npm start
     sync:
-      -.:/app
+      - .:/app
