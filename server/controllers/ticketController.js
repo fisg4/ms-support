@@ -23,9 +23,9 @@ const ticketDb = [
 const getAllTickets = async (req, res, next) => {
     try {
         const result = await Ticket.find();
-        res.send(result);
-    } catch (e) {
-        debug("DB problem", e);
+        res.send(result.map((ticket) => ticket.cleanup()));
+    } catch (error) {
+        debug("DB problem", error);
         res.sendStatus(500);
     }
 };
@@ -55,9 +55,14 @@ const createTicket = async (req, res, next) => {
     try {
         await ticket.save();
         return res.sendStatus(201);
-    } catch (e) {
-        debug("DB problem", e);
-        res.sendStatus(500);
+    } catch (error) {
+        if (error.errors) {
+            debug("Validation problem when saving");
+            res.status(400).send({error: error.message});
+        } else {
+            debug("DB problem", error);
+            res.sendStatus(500);
+        }
     }
 };
 
