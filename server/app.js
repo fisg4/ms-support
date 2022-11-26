@@ -28,7 +28,7 @@ app.use('/support/v1/tickets', ticketsRoutes);
 
 // setup mongodb
 const mongoose = require('mongoose');
-const DB_URL = (process.env.DB_URL || 'mongodb://localhost/support');
+const DB_URL = (process.env.DB_URL || 'mongodb://localhost/test');
 
 mongoose.connect(DB_URL);
 const db = mongoose.connection;
