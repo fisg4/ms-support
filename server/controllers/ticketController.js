@@ -1,5 +1,5 @@
 const Ticket = require("../models/ticket");
-const debug = require('debug')('contacts-2:server');
+const debug = require('debug');
 
 const ticketDb = [
     {
