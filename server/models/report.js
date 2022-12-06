@@ -19,7 +19,10 @@ const reportSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['sent', 'rejected', 'validated'],
+        enum: {
+            values: ['sent', 'rejected', 'validated'],
+            message: '{VALUE} is not supported'
+        },
         default: 'sent',
         required: true
     },
