@@ -12,6 +12,11 @@ const reportSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    title:{
+        type: String,
+        maxLength: 100,
+        required: true
+    },
     text: {
         type: String,
         maxLength: 255,
@@ -40,6 +45,7 @@ reportSchema.methods.cleanup = function () {
         authorId: this.authorId,
         reviewerId: this.reviewerId,
         messageId: this.messageId,
+        title: this.title,
         text: this.text,
         status: this.status,
         createDate: this.createDate,
