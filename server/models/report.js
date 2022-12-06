@@ -1,0 +1,49 @@
+const mongoose = require('mongoose');
+
+const reportSchema = new mongoose.Schema({
+    authorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    reviewerId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    messageId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    text: {
+        type: String,
+        maxLength: 255,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['sent', 'rejected', 'validated'],
+        default: 'sent',
+        required: true
+    },
+    createDate: {
+        type: Date,
+        required: true
+    },
+    updateDate: {
+        type: Date,
+    },
+});
+
+reportSchema.methods.cleanup = function () {
+    return {
+        authorId: this.authorId,
+        reviewerId: this.reviewerId,
+        messageId: this.messageId,
+        text: this.text,
+        status: this.status,
+        createDate: this.createDate,
+        updateDate: this.updateDate
+    }
+}
+
+const Report = mongoose.model('Report', reportSchema);
+
+module.exports = Report;
