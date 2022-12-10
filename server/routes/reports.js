@@ -6,16 +6,16 @@ const router = express.Router();
 /* GET all reports */
 router.get('/', reportController.getAllReports);
 
-/* GET a report */
+/* GET report by id */
 router.get('/:id', reportController.getReportById);
 
-/* POST a report */
+/* POST report by normal user */
 router.post('/', reportController.createReport);
 
-/* PATCH a report */
+/* PATCH report by admin */
 router.patch('/:id', reportController.updateReport);
 
-/* DELETE a report */
+/* DELETE report by admin */
 router.delete('/:id', reportController.deleteReport);
 
 module.exports = router;

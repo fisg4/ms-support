@@ -1,64 +1,81 @@
-const reportDb = [
-    {
-        id: '1',
-        userId: '1',
-        messageId: '1',
-        text: 'This message contains hate',
-        date: Date.now(),
-        status: 'SENT'
-    },
-    {
-        id: '2',
-        userId: '2',
-        messageId: '2',
-        text: 'This message contains hate',
-        date: Date.now(),
-        status: 'SENT'
-    }
-];
+const Report = require("../models/report");
+const debug = require('debug');
 
-const getAllReports = (req, res, next) => {
-    res.send(reportDb);
-};
-
-const getReportById = (req, res, next) => {
-    const id = req.params.id;
-    const report = reportDb.find(r => { return r.id === id; });
-    if (report){
-        res.send(report);
-    } else {
-        res.sendStatus(404);
+/* GET all reports */
+const getAllReports = async (request, response, next) => {
+    try {
+        const result = await Report.find();
+        response.send(result.map((report) => report.cleanup()));
+    } catch (error) {
+        debug("Database problem", error);
+        response.sendStatus(404).send({error: error.message});
     }
 };
 
-const createReport = (req, res, next) => {
-    const report = req.body;
-    reportDb.push(report);
-    res.sendStatus(201);
-};
-
-const updateReport = (req, res, next) => {
-    const id = req.params.id;
-    const report = reportDb.find(r => { return r.id === id });
-    if (report) {
-        const reportUpdate = req.body;
-        const index = reportDb.indexOf(report)
-        reportDb[index].text = reportUpdate.text;
-        res.send(reportDb[index]);
-    } else {
-        res.sendStatus(404);
+/* GET report by id */
+const getReportById = async (request, response, next) => {
+    try {
+        const id = request.params.id;
+        const result = await Report.findById(id);
+        response.send(result.cleanup());
+    } catch (error) {
+        debug("Database problem", error);
+        response.sendStatus(404).send({error: error.message});
     }
 };
 
-const deleteReport = (req, res, next) => {
-    const id = req.params.id;
-    const report = reportDb.find(r => { return r.id === id });
-    if (report) {
-        const index = reportDb.indexOf(report);
-        reportDb.splice(index, 1);
-        res.sendStatus(204);
-    } else {
-        res.sendStatus(404);
+/* POST report by normal user */
+const createReport = async (request, response, next) => {
+    const {authorId, messageId, title, text} = request.body;
+    const createDate = Date.now();
+    const report = new Report({ authorId, messageId, title, text, createDate });
+
+    try {
+        await report.save();
+        return response.status(201).send(report.cleanup());
+    } catch (error) {
+        if (error.errors) {
+            debug("Validation problem when saving");
+            response.status(400).send({error: error.message});
+        } else {
+            debug("Database problem", error);
+            response.sendStatus(500);
+        }
+    }
+};
+
+/* PATCH report by admin */
+const updateReport = async (request, response, next) => {
+    const {reviewerId, status} = request.body;
+    const updateDate = Date.now()
+    const reportId = request.params.id;
+
+    try {
+        const report = await Report.findById(reportId);
+        report.reviewerId = reviewerId; report.status = status; report.updateDate = updateDate
+        await report.save();
+        return response.sendStatus(201);
+    } catch (error) {
+        if (error.errors) {
+            debug("Validation problem when updating");
+            response.status(400).send({error: error.message});
+        } else {
+            debug("Database problem", error);
+            response.sendStatus(500);
+        }
+    }
+};
+
+/* DELETE report by admin */
+const deleteReport = async (request, response, next) => {
+    const reportId = request.params.id;
+
+    try {
+        await Report.findByIdAndDelete(reportId);
+        return response.sendStatus(204);
+    } catch (error) {
+        debug("Database problem", error);
+        response.sendStatus(404).send({error: error.message});
     }
 };
 
