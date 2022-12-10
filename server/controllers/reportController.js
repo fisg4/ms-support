@@ -1,5 +1,7 @@
 const Report = require("../models/report");
 const debug = require('debug');
+const sendGridService = require("../services/sendgrid");
+
 
 /* GET all reports */
 const getAllReports = async (request, response, next) => {
@@ -54,6 +56,10 @@ const updateReport = async (request, response, next) => {
         const report = await Report.findById(reportId);
         report.reviewerId = reviewerId; report.status = status; report.updateDate = updateDate
         await report.save();
+        if (report.status === "validated"){
+            const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
+            return response.sendStatus(res.status)
+        }
         return response.sendStatus(201);
     } catch (error) {
         if (error.errors) {
