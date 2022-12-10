@@ -32,7 +32,7 @@ const createReport = async (request, response, next) => {
 
     try {
         await report.save();
-        return response.sendStatus(201).send(report.cleanup());
+        return response.status(201).send(report.cleanup());
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
