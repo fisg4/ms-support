@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const logger = require('morgan');
+const {openapiDocs} = require('../docs/swagger')
 
 var helloRoutes = require('./routes/hello')
 var usersRoutes = require('./routes/users')
@@ -25,6 +26,7 @@ app.use('/', helloRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/support/v1/reports', reportsRoutes);
 app.use('/support/v1/tickets', ticketsRoutes);
+openapiDocs(app);
 
 // setup mongodb
 const mongoose = require('mongoose');
