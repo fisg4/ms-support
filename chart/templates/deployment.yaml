@@ -27,6 +27,11 @@ spec:
                 secretKeyRef:
                   name: mongodb
                   key: support_db_url
+            - name: SENDGRID_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sendgrid
+                  key: sendgrid_api_key
           ports:
             - name: http
               containerPort: 3000

@@ -2,3 +2,5 @@ support:
   replicaCount: 1
 
 supportMongoUrl: mongodb://mongo/test
+
+supportSendgridApiKey: b64enc
