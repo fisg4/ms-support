@@ -16,7 +16,6 @@ function getMessage(user, title) {
 
 const sendEmail = async (user, title) => {
     try {
-
         const response = await sendGridMail.send(getMessage(user, title));
         return {status: response[0].statusCode}
     } catch (error) {

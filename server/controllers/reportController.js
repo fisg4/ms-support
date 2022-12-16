@@ -1,6 +1,7 @@
 const Report = require("../models/report");
 const debug = require('debug');
 const sendGridService = require("../services/sendgrid");
+const messageService = require("../services/messages");
 
 
 /* GET all reports */
@@ -46,6 +47,30 @@ const createReport = async (request, response, next) => {
     }
 };
 
+const sendEmailToReporter = async (report) => {
+    try {
+        const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
+        return response.sendStatus(res.status)
+    } catch (error) {
+        debug("Services Problem");
+        response.send({error: error.message});
+    }
+}
+
+const updateMessageContent = async (report) => {
+    try {
+        if (report.status === "approved") {
+            await messageService.banMessage(report.messageId, true);
+        } else {
+            await messageService.banMessage(report.messageId, false);
+        }
+        return response.sendStatus(200)
+    } catch (error) {
+        debug("Services Problem");
+        response.send({error: error.message});
+    }
+}
+
 /* PATCH report by admin */
 const updateReport = async (request, response, next) => {
     const {reviewerId, status} = request.body;
@@ -56,9 +81,9 @@ const updateReport = async (request, response, next) => {
         const report = await Report.findById(reportId);
         report.reviewerId = reviewerId; report.status = status; report.updateDate = updateDate
         await report.save();
-        if (report.status === "validated"){
-            const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
-            return response.sendStatus(res.status)
+        await updateMessageContent(report);
+        if (report.status === "approved") {
+            await sendEmailToReporter(report);
         }
         return response.sendStatus(201);
     } catch (error) {

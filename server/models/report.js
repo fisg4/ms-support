@@ -25,7 +25,7 @@ const reportSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: {
-            values: ['sent', 'rejected', 'validated'],
+            values: ['sent', 'rejected', 'approved'],
             message: '{VALUE} is not supported'
         },
         default: 'sent',
