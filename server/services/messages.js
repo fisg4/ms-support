@@ -7,7 +7,7 @@ const API_VERSION = "/api/v1";
 
 const banMessage = async (id, isBanned) => {
     try {
-        const url = urlJoin(MESSAGES_HOST, API_VERSION, '/messages/', id, '/report');
+        const url = urlJoin(MESSAGES_HOST, API_VERSION, '/messages/', id.toString(), '/report');
         const response = await axios.put(url, {'IsBanned': isBanned});
         debug(response);
         return response.data;
