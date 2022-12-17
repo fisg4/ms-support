@@ -13,12 +13,12 @@ const options = {
     },
     servers: [
       {
-        url: 'https://support-fastmusik-marmolpen3.cloud.okteto.net/',
+        url: 'https://support-fastmusik-marmolpen3.cloud.okteto.net/support/v1',
         description: 'Development server',
       },
     ],
   },
-  apis: ["./oas.yaml"],
+  apis: ["./docs/**/*.yaml"],
 };
 
 
