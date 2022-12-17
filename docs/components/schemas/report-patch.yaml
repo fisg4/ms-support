@@ -1,0 +1,13 @@
+components:
+  schemas:
+    ReportPatch:
+      type: object
+      properties:
+        reviewerId:
+          type: ObjectId
+          example: 637d0c328a43d958f6ff661d
+        status:
+          type: String
+          enum:
+            values: ['rejected', 'approved']
+          example: "appoved"
