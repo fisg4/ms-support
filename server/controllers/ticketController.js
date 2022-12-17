@@ -32,7 +32,7 @@ const createTicket = async (request, response, next) => {
 
     try {
         await ticket.save();
-        return response.status(201).send(ticket.cleanup());
+        response.status(201).send(ticket.cleanup());
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");

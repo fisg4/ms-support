@@ -34,7 +34,7 @@ const createReport = async (request, response, next) => {
 
     try {
         await report.save();
-        return response.status(201).send(report.cleanup());
+         response.status(201).send(report.cleanup());
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
@@ -58,9 +58,9 @@ const updateReport = async (request, response, next) => {
         await report.save();
         if (report.status === "validated"){
             const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
-            return response.sendStatus(res.status)
+             response.sendStatus(res.status)
         }
-        return response.sendStatus(201);
+         response.sendStatus(201);
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when updating");
@@ -78,7 +78,7 @@ const deleteReport = async (request, response, next) => {
 
     try {
         await Report.findByIdAndDelete(reportId);
-        return response.sendStatus(204);
+         response.sendStatus(204);
     } catch (error) {
         debug("Database problem", error);
         response.sendStatus(404).send({error: error.message});
