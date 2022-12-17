@@ -7,6 +7,7 @@
 const app = require('../app');
 const debugPkg = require('debug');
 const http = require('http');
+const db = require('../db');
 
 const debug = debugPkg('js/www:server');
 
