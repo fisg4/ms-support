@@ -60,9 +60,9 @@ const sendEmailToReporter = async (report) => {
 const updateMessageContent = async (report) => {
     try {
         if (report.status === "approved") {
-            await messageService.banMessage(report.messageId, true);
+            await messageService.banMessage(report.messageId, true, report.authorId.toString());
         } else {
-            await messageService.banMessage(report.messageId, false);
+            await messageService.banMessage(report.messageId, false, report.authorId.toString());
         }
         return response.sendStatus(200)
     } catch (error) {
