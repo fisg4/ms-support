@@ -6,7 +6,11 @@ on:
 name: support deployment
 
 jobs:
+  test:
+    uses: fisg4/ms-support/.github/workflows/tests.yml@main
+    
   devflow:
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - name: checkout
