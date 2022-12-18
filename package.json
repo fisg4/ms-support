@@ -13,7 +13,8 @@
     "transpile": "babel ./server --out-dir dist --copy-files",
     "lint": "eslint ./server",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "integration": "jest -c jest.integration.config.js"
   },
   "nodemonConfig": {
     "exec": "npm run dev",
