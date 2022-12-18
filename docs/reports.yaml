@@ -39,6 +39,28 @@ paths:
           description: Validation problem when saving
         "500":
           description: Database problem
+  /reports/{id}:
+    get:
+      tags:
+        - Reports
+      summary: Find report by ID
+      description: Returns a single report by ID
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Database problem
     patch:
       tags:
         - Reports
@@ -79,28 +101,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "404":
-          description: Database problem
-  /reports/:id:
-    get:
-      tags:
-        - Reports
-      summary: Find report by ID
-      description: Returns a single report by ID
-      parameters:
-        - name: id
-          in: path
-          description: Report id in the system
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: The report
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Report"
         "404":
           description: Database problem
 
