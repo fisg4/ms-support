@@ -1,100 +1,100 @@
 paths:
-  /reports:
+  /tickets:
     get:
       tags:
-        - Reports
-      summary: Get all reports
-      description: Returns all the reports in the system
+        - Tickets
+      summary: Get all tickets
+      description: Returns all the tickets in the system
       responses:
         "200":
-          description: A list of reports
+          description: A list of tickets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Report"
+                  $ref: "#/components/schemas/Ticket"
         "404":
           description: Database problem
     post:
       tags:
-        - Reports
-      summary: Post a new report in the system by user
-      description: Report an ofensive message to get it banned
+        - Tickets
+      summary: Post a new ticket in the system by user
+      description: Report an incident regarding a song or the behavior of the application
       requestBody:
-        description: Created report object
+        description: Created ticket object
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReportPost"
+              $ref: "#/components/schemas/TicketPost"
       responses:
         "201":
-          description: Successful operation. Posted report
+          description: Successful operation. Posted ticket
           content:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/Report"
+                  $ref: "#/components/schemas/Ticket"
         "400":
           description: Validation problem when saving
         "500":
           description: Database problem
-  /reports/{id}:
+  /tickets/{id}:
     get:
       tags:
-        - Reports
-      summary: Find report by ID
-      description: Returns a single report by ID
+        - Tickets
+      summary: Find ticket by ID
+      description: Returns a single ticket by ID
       parameters:
         - name: id
           in: path
-          description: Report id in the system
+          description: Ticket id in the system
           required: true
           schema:
             type: string
       responses:
         "200":
-          description: The report
+          description: Ticket requested
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Report"
+                $ref: "#/components/schemas/Ticket"
         "404":
           description: Database problem
     patch:
       tags:
-        - Reports
-      summary: Update a report by admin
-      description: Approve or reject a report
+        - Tickets
+      summary: Update a ticket by admin
+      description: Approve or reject a ticket
       parameters:
         - name: id
           in: path
-          description: Report id in the system
+          description: Ticket id in the system
           required: true
           schema:
             type: string
       requestBody:
-        description: Update report object
+        description: Update ticket object
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReportPatch"
+              $ref: "#/components/schemas/TicketPatch"
       responses:
         "201":
-          description: Successful operation. Updated report
+          description: Successful operation. Updated ticket
         "400":
           description: Validation problem when saving
         "500":
           description: Database problem
     delete:
       tags:
-        - Reports
-      summary: Delete a report
-      description: Delete a report permanently from the system
+        - Tickets
+      summary: Delete a ticket
+      description: Delete a ticket permanently from the system
       parameters:
         - name: id
           in: path
-          description: Report id in the system
+          description: Ticket id in the system
           required: true
           schema:
             type: string
@@ -106,6 +106,6 @@ paths:
 
 components:
   $ref:
-    - "./components/schemas/report.yaml"
-    - "./components/schemas/report-post.yaml"
-    - "./components/schemas/report-patch.yaml"
+    - "./components/schemas/ticket.yaml"
+    - "./components/schemas/ticket-post.yaml"
+    - "./components/schemas/ticket-patch.yaml"

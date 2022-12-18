@@ -10,4 +10,4 @@ components:
           type: String
           enum:
             values: ['rejected', 'approved']
-          example: "appoved"
+          example: "approved"
