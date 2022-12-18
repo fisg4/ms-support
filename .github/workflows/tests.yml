@@ -52,4 +52,4 @@ jobs:
       - run: npm run integration
         env:
           DB_URL: ${{ secrets.DB_TOKEN }}
-          SENDGRID_API_KEY: ${{ secrets.sendgrid_TOKEN }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_TOKEN }}
