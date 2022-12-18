@@ -44,15 +44,15 @@ paths:
         - Reports
       summary: Update a report by admin
       description: Approve or reject a report
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Update report object
-        parameters:
-          - name: id
-            in: path
-            description: Report id in the system
-            required: true
-            schema:
-              type: string
         content:
           application/json:
             schema:
