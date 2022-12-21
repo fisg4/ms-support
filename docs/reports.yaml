@@ -1,0 +1,111 @@
+paths:
+  /reports:
+    get:
+      tags:
+        - Reports
+      summary: Get all reports
+      description: Returns all the reports in the system
+      responses:
+        "200":
+          description: A list of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: Database problem
+    post:
+      tags:
+        - Reports
+      summary: Post a new report in the system by user
+      description: Report an ofensive message to get it banned
+      requestBody:
+        description: Created report object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportPost"
+      responses:
+        "201":
+          description: Successful operation. Posted report
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Report"
+        "400":
+          description: Validation problem when saving
+        "500":
+          description: Database problem
+  /reports/{id}:
+    get:
+      tags:
+        - Reports
+      summary: Find report by ID
+      description: Returns a single report by ID
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Database problem
+    patch:
+      tags:
+        - Reports
+      summary: Update a report by admin
+      description: Approve or reject a report
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update report object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportPatch"
+      responses:
+        "201":
+          description: Successful operation. Updated report
+        "400":
+          description: Validation problem when saving
+        "500":
+          description: Database problem
+    delete:
+      tags:
+        - Reports
+      summary: Delete a report
+      description: Delete a report permanently from the system
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Database problem
+
+components:
+  $ref:
+    - "./components/schemas/report.yaml"
+    - "./components/schemas/report-post.yaml"
+    - "./components/schemas/report-patch.yaml"
