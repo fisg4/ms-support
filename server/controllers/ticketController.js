@@ -1,4 +1,5 @@
 const Ticket = require("../models/ticket");
+const songService = require("../services/songs");
 const debug = require('debug');
 
 
@@ -44,20 +45,34 @@ const createTicket = async (request, response, next) => {
     }
 };
 
+const updateSongUrl = async (ticket) => {
+    try {
+        var response = await songService.changeUrl(ticket.songId.toString(), ticket.text);
+        return response;
+    } catch (error) {
+        debug('Services problem');
+        response.send({error: error.message});
+    }
+}
+
 const updateTicket = async (request, response, next) => {
     const ticketId = request.params.id;
 
     try {
-        ticket = await Ticket.findById(ticketId);
+        var ticket = await Ticket.findById(ticketId);
 
-        ticketId.reviewerId = request.body.reviewerId;
+        ticket.reviewerId = request.body.reviewerId;
         ticket.status = request.body.status;
         ticket.priority = request.body.priority;
         ticket.updateDate = Date.now();
 
         ticketUpdated = await ticket.save();
 
-        response.send(ticketUpdated.cleanup());
+        if (ticketUpdated.status === 'validated' && ticketUpdated.text.startsWith('http')) {
+            var res = await updateSongUrl(ticketUpdated);
+        }
+
+        response.send(res);
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when updating");
