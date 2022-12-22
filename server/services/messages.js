@@ -8,7 +8,7 @@ const API_VERSION = "/api/v1";
 const banMessage = async (id, isBanned, userId) => {
     try {
         const url = urlJoin(MESSAGES_HOST, API_VERSION, '/messages/', id.toString(), '/report');
-        const response = await axios.patch(url, {'IsBanned': isBanned}, 
+        const response = await axios.patch(url, {'isBanned': isBanned}, 
                             { headers: { 'Content-Type': 'application/json', 'userId': userId}});
         debug(response);
         return response.data;

@@ -47,27 +47,28 @@ const createReport = async (request, response, next) => {
     }
 };
 
-const sendEmailToReporter = async (report) => {
+const sendEmailToReporter = async (response, report) => {
     try {
         const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
         return response.sendStatus(res.status)
     } catch (error) {
         debug("Services Problem");
-        response.send({error: error.message});
+        return response.send({error: error.message});
     }
 }
 
-const updateMessageContent = async (report) => {
+const updateMessageContent = async (response, report) => {
     try {
         if (report.status === "approved") {
             await messageService.banMessage(report.messageId, true, report.authorId.toString());
+            return response.sendStatus(200);
         } else {
             await messageService.banMessage(report.messageId, false, report.authorId.toString());
+            return response.sendStatus(200);
         }
-        return response.sendStatus(200)
     } catch (error) {
         debug("Services Problem");
-        response.send({error: error.message});
+        return response.send({error: error.message});
     }
 }
 
@@ -81,9 +82,9 @@ const updateReport = async (request, response, next) => {
         const report = await Report.findById(reportId);
         report.reviewerId = reviewerId; report.status = status; report.updateDate = updateDate
         await report.save();
-        await updateMessageContent(report);
+        await updateMessageContent(response, report);
         if (report.status === "approved") {
-            await sendEmailToReporter(report);
+            await sendEmailToReporter(response, report);
         }
         return response.sendStatus(201);
     } catch (error) {
