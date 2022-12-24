@@ -50,6 +50,7 @@ const ticketSchema = new mongoose.Schema({
 
 ticketSchema.methods.cleanup = function() {
     return {
+        ticketId: this.ObjectId,
         authorId: this.authorId,
         reviewerId: this.reviewerId,
         songId: this.songId,
