@@ -4,7 +4,7 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res) => {
-  res.send({ data: 'Hello from Generate-Express' });
+  res.send('Hello to support microservices');
 });
 
 module.exports = router;
