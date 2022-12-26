@@ -7,9 +7,9 @@ const API_VERSION = "/api/v1";
 
 const changeUrl = async (id, songUrl) => {
     try {
-        const url = urlJoin("https://songs-fastmusik-marmolpen3.cloud.okteto.net", API_VERSION, '/songs/');
+        const url = urlJoin(SONG_HOST, API_VERSION, '/songs');
         const response = await axios.put(url, {'id': id, 'url': songUrl});
-        return response.status;
+        return response;
     } catch(error) {
         console.error(error);
         return null;

@@ -60,6 +60,7 @@ const updateTicket = async (request, response, next) => {
 
     try {
         var ticket = await Ticket.findById(ticketId);
+        const oldStatus = ticket.status;
 
         ticket.reviewerId = request.body.reviewerId;
         ticket.status = request.body.status;
@@ -68,11 +69,17 @@ const updateTicket = async (request, response, next) => {
 
         ticketUpdated = await ticket.save();
 
-        if (ticketUpdated.status === 'validated' && ticketUpdated.text.startsWith('http')) {
-            var res = await updateSongUrl(ticketUpdated);
+        if (ticketUpdated.status === 'validated' && ticketUpdated.songId) {
+            var songsResponse = await updateSongUrl(ticketUpdated);
+            songsResponse.status = 404;
+            if (songsResponse.status !== 200) {
+                ticket.status = oldStatus;
+
+                await ticket.save();
+            }
         }
 
-        response.send(res);
+        response.sendStatus(204);
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when updating");
