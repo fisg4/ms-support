@@ -1,39 +1,45 @@
 const Ticket = require("../models/ticket");
 const songService = require("../services/songs");
 const debug = require('debug');
+const { compile } = require("morgan");
 
 
-const getAllTickets = async (request, response, next) => {
+const getAllTickets = async (request, response) => {
     try {
-        const result = await Ticket.find();
-        response.send(result.map((ticket) => ticket.cleanup()));
+        const tickets = await Ticket.getAll();
+        response.send(tickets.map((ticket) => ticket));
     } catch (error) {
         debug("Database problem", error);
         response.sendStatus(404).send({error: error.message});
     }
 };
 
-const getTicketById = async (request, response, next) => {
+const getTicket = async (request, response) => {
+    const { id } = request.params;
+
     try {
-        var ticketId = request.params.id;
-        const result = await Ticket.findById(ticketId);
-        response.send(result.cleanup());
+        const ticket = await Ticket.getById(id);
+        if (!ticket) {
+            response.status(404).json({
+                success: false,
+                message: `Ticket with id '${id}' not found`,
+                content: {}
+              });
+              return;
+        };
+        response.send(ticket);
     } catch (error) {
         debug("Database problem", error);
         response.sendStatus(404).send({error: error.message});
     }
 };
 
-const createTicket = async (request, response, next) => {
-    const {authorId, songId, title, text, priority} = request.body;
-
-    const createDate = Date.now();
-
-    const ticket = new Ticket({authorId, songId, title, text, priority, createDate});
+const createTicket = async (request, response) => {
+    const { authorId, songId, title, text, priority } = request.body;
 
     try {
-        await ticket.save();
-        response.status(201).send(ticket.cleanup());
+        const ticket = await Ticket.insert(authorId, songId, title, text, priority);
+        response.status(201).send(ticket);
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
@@ -55,29 +61,23 @@ const updateSongUrl = async (ticket) => {
     }
 }
 
-const updateTicket = async (request, response, next) => {
-    const ticketId = request.params.id;
+const updateTicket = async (request, response) => {
+    const { id } = request.params;
+    const { reviewerId, status, priority } = request.body;
 
     try {
-        var ticket = await Ticket.findById(ticketId);
-        const oldStatus = ticket.status;
+        var ticket = await Ticket.getById(id);
 
-        ticket.reviewerId = request.body.reviewerId;
-        ticket.status = request.body.status;
-        ticket.priority = request.body.priority;
-        ticket.updateDate = Date.now();
+        const ticketUpdated = await ticket.updateTicket(reviewerId, status, priority);
 
-        ticketUpdated = await ticket.save();
+        // if (ticketUpdated.status === 'validated' && ticketUpdated.songId) {
+        //     // var songsResponse = await updateSongUrl(ticketUpdated);
+        //     if (true) {
+        //         ticket.status = oldStatus;
 
-        if (ticketUpdated.status === 'validated' && ticketUpdated.songId) {
-            var songsResponse = await updateSongUrl(ticketUpdated);
-            songsResponse.status = 404;
-            if (songsResponse.status !== 200) {
-                ticket.status = oldStatus;
-
-                await ticket.save();
-            }
-        }
+        //         await ticket.save();
+        //     }
+        // }
 
         response.sendStatus(204);
     } catch (error) {
@@ -91,10 +91,16 @@ const updateTicket = async (request, response, next) => {
     }
 };
 
-const deleteTicket = async (request, response, next) => {
+const deleteTicket = async (request, response) => {
+    const { id } = request.params;
+
     try {
-        const ticketId = request.params.id;
-        await Ticket.findByIdAndDelete(ticketId);
+        const ticket = await Ticket.getById(id);
+        if (!ticket) {
+            response.status(404)
+            return;
+        };
+        await ticket.removeTicket();
         response.sendStatus(204);
     } catch (error) {
         debug("Database problem", error);
@@ -103,5 +109,5 @@ const deleteTicket = async (request, response, next) => {
 };
 
 module.exports = {
-    getAllTickets, getTicketById, createTicket, updateTicket, deleteTicket
+    getAllTickets, getTicket, createTicket, updateTicket, deleteTicket
 };

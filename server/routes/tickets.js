@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', ticketController.getAllTickets);
 
 /* GET ticket */
-router.get('/:id', ticketController.getTicketById);
+router.get('/:id', ticketController.getTicket);
 
 /* POST ticket */
 router.post('/', ticketController.createTicket);
