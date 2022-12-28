@@ -30,7 +30,7 @@ openapiDocs(app);
 
 // setup mongodb
 const mongoose = require('mongoose');
-const DB_URL = ("mongodb+srv://support:rDMKYSJQdTBYh6hb@cluster0.x1fgqws.mongodb.net/?retryWrites=true&w=majority" || 'mongodb://localhost/test');
+const DB_URL = (process.env.DB_URL || 'mongodb://localhost/test');
 
 mongoose.connect(DB_URL);
 const db = mongoose.connection;
