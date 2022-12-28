@@ -25,6 +25,7 @@ components:
           enum:
             values: ['sent', 'rejected', 'approved']
           default: 'sent'
+          example: 'rejected'
         createDate:
           type: Date
           example: "2022-12-17T09:05:05.954Z"

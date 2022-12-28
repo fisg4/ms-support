@@ -41,20 +41,6 @@ const reportSchema = new mongoose.Schema({
     },
 });
 
-reportSchema.methods.cleanup = function () {
-    return {
-        _id: this._id,
-        authorId: this.authorId,
-        reviewerId: this.reviewerId,
-        messageId: this.messageId,
-        title: this.title,
-        text: this.text,
-        status: this.status,
-        createDate: this.createDate,
-        updateDate: this.updateDate
-    }
-}
-
 reportSchema.statics.createReport = (authorId, messageId, title, text) => {
     const createDate = Date.now();
     const report = { authorId, messageId, title, text, createDate };

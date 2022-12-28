@@ -25,7 +25,7 @@ const getAllReports = async (request, response, next) => {
         debug("Request problem");
         response.status(500).send({
             success: false,
-            message: "Internal server error. Error getting reports.",
+            message: "Internal server error. Error getting reports",
             content: null
         });
     }
@@ -146,12 +146,12 @@ const updateReport = async (request, response, next) => {
     if (!report) {
         response.status(404).send({
             success: false,
-            message: "Not found. There are some problems with the request",
+            message: "Report not found. There are some problems with the request",
             content: null
         });
         return;
     } else if (report.reviewerId) {
-        response.status(400).send({
+        response.status(409).send({
             success: false,
             message: "Bad request. The report has already been reviewed",
             content: null

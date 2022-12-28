@@ -15,7 +15,9 @@ paths:
                 items:
                   $ref: "#/components/schemas/Report"
         "404":
-          description: Database problem
+          description: No reports found
+        "500":
+          description: Internal server error. Error getting reports
     post:
       tags:
         - Reports
@@ -37,8 +39,10 @@ paths:
                   $ref: "#/components/schemas/Report"
         "400":
           description: Validation problem when saving
+        "409": 
+          description: Message can not be reported twice
         "500":
-          description: Database problem
+          description: Internal server error. There are some problems with the request
   /reports/{id}:
     get:
       tags:
@@ -60,7 +64,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Report"
         "404":
-          description: Database problem
+          description: Report not found
+        "500":
+          description: Error getting report
     patch:
       tags:
         - Reports
@@ -78,14 +84,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReportPatch"
+              $ref: "#/components/schemas/Report"
       responses:
         "201":
           description: Successful operation. Updated report
         "400":
           description: Validation problem when saving
+        "404":
+          description: Report not found
+        "409":
+          description: The report has already been reviewed
         "500":
-          description: Database problem
+          description: Internal server error. Problems with the request
     delete:
       tags:
         - Reports
@@ -102,7 +112,26 @@ paths:
         "204":
           description: No Content
         "404":
-          description: Database problem
+          description: Report not found
+  /reports/user/{id}:
+      get:
+      tags:
+        - Reports
+      summary: Get all reports by user id
+      description: Returns all user reports in the system
+      responses:
+        "200":
+          description: A list of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: No reports found of this user 
+        "500":
+          description: Internal server error. Error getting reports
 
 components:
   $ref:
