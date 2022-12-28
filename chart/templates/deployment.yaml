@@ -32,6 +32,11 @@ spec:
                 secretKeyRef:
                   name: sendgrid
                   key: sendgrid_api_key
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ms-support-jwt-secrets
+                  key: jwt_secret
           ports:
             - name: http
               containerPort: 3000
