@@ -6,6 +6,9 @@ const router = express.Router();
 /* GET all tickets */
 router.get('/', ticketController.getAllTickets);
 
+/* GET user tickets */
+router.get('/', ticketController.getUserTickets);
+
 /* GET ticket */
 router.get('/:id', ticketController.getTicket);
 

@@ -14,6 +14,17 @@ const getAllTickets = async (request, response) => {
     }
 };
 
+const getUserTickets = async (request, response) => {
+    // const userId = auth user id;
+    try {
+        const tickets = await Ticket.getAll();
+        response.send(tickets.map((ticket) => ticket));
+    } catch (error) {
+        debug("Database problem", error);
+        response.sendStatus(404).send({error: error.message});
+    }
+};
+
 const getTicket = async (request, response) => {
     const { id } = request.params;
 
@@ -109,5 +120,5 @@ const deleteTicket = async (request, response) => {
 };
 
 module.exports = {
-    getAllTickets, getTicket, createTicket, updateTicket, deleteTicket
+    getAllTickets, getUserTickets, getTicket, createTicket, updateTicket, deleteTicket
 };

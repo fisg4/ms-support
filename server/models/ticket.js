@@ -54,6 +54,8 @@ ticketSchema.statics.getById = (id) => mongoose.model('Ticket').findById(id);
 
 ticketSchema.statics.getAll = () => mongoose.model('Ticket').find();
 
+ticketSchema.statics.getUserTickets = (id) => mongoose.model('Ticket').find({authorId: id});
+
 ticketSchema.statics.insert = (authorId, songId, title, text, priority) => {
     let newTicket = {authorId, songId, title, text, priority, createDate: Date.now()};
 
