@@ -55,6 +55,12 @@ reportSchema.methods.cleanup = function () {
     }
 }
 
+reportSchema.statics.createReport = (authorId, messageId, title, text) => {
+    const createDate = Date.now();
+    const report = { authorId, messageId, title, text, createDate };
+    return mongoose.model('Report').create(report);
+};
+
 reportSchema.methods.updateReport = function updateReport(reviewerId, status) {
     this.reviewerId = reviewerId;
     this.status = status;
@@ -68,7 +74,6 @@ reportSchema.methods.rollbackUpdateReport = function rollbackUpdateReport() {
     this.updateDate = null;
     return this.save();
 };
-
 
 const Report = mongoose.model('Report', reportSchema);
 

@@ -8,7 +8,7 @@ const API_VERSION = "/api/v1";
 const banMessage = async (response, report, isBanned) => {
     const url = urlJoin(MESSAGES_HOST, API_VERSION, '/messages/', report.messageId.toString(), '/report');
     try {
-        await axios.patch(url, { 'isBanned':  isBanned},
+        await axios.patch(url, { 'isBanned': isBanned },
             { headers: { 'Content-Type': 'application/json', 'userId': report.reviewerId.toString() } });
     } catch (error) {
         // Rollback the operation
@@ -19,7 +19,6 @@ const banMessage = async (response, report, isBanned) => {
             messageContent: error.response.data,
             previousReport: previousReport
         });
-        return;
     }
 };
 
@@ -33,7 +32,6 @@ const unbanMessage = async (response, report) => {
             messageServiceStatus: error.response.status,
             messageServiceContent: error.response.data,
         });
-        return;
     }
 };
 
