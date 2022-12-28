@@ -9,7 +9,7 @@ RUN npm install
 
 COPY server/ ./server
 COPY docs ./docs
-COPY passport ./passport
+COPY passport.js .
 
 EXPOSE 3000
 
