@@ -8,6 +8,14 @@ const messageService = require("../services/messages");
 const getAllReports = async (request, response, next) => {
     try {
         const result = await Report.find();
+        if (result.length === 0) {
+            response.status(404).send({
+                success: false,
+                message: "No reports found",
+                content: null
+            });
+            return;
+        }
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -15,9 +23,38 @@ const getAllReports = async (request, response, next) => {
         });
     } catch (error) {
         debug("Request problem");
-        response.status(404).send({
+        response.status(500).send({
             success: false,
-            message: "Not found. There are some problems with the request",
+            message: "Internal server error. Error getting reports.",
+            content: null
+        });
+    }
+};
+
+/* GET all reports by user id */
+const getAllReportsByUserId = async (request, response, next) => {
+    const id = request.params.id;
+    try {
+        const result = await Report.find({ authorId: id });
+        if (result.length === 0) {
+            response.status(404).send({
+                success: false,
+                message: `No reports found for user with id '${id}' `,
+                content: null
+            });
+            return;
+        }
+
+        response.status(200).send({
+            success: true,
+            message: "All reports found",
+            content: result
+        });
+    } catch (error) {
+        debug("Request problem");
+        response.status(500).send({
+            success: false,
+            message: `Internal server error. Error getting reports of the user with id '${id}'.`,
             content: null
         });
     }
@@ -29,9 +66,9 @@ const getReportById = async (request, response, next) => {
     try {
         const result = await Report.findById(id);
         if (!result) {
-            res.status(404).send({
+            response.status(404).send({
                 success: false,
-                message: `Message with id '${id}' not found`,
+                message: `Report with id '${id}' not found`,
                 content: null
             });
             return;
@@ -62,7 +99,6 @@ const createReport = async (request, response, next) => {
             message: "Report created successfully",
             content: report
         });
-        return;
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
@@ -176,5 +212,5 @@ const deleteReport = async (request, response, next) => {
 };
 
 module.exports = {
-    getAllReports, getReportById, createReport, updateReport, deleteReport
+    getAllReports, getAllReportsByUserId, getReportById, createReport, updateReport, deleteReport
 };

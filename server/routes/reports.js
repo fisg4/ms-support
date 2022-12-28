@@ -6,6 +6,9 @@ const router = express.Router();
 /* GET all reports */
 router.get('/', reportController.getAllReports);
 
+/* GET all reports by user id */
+router.get('/user/:id', reportController.getAllReportsByUserId);
+
 /* GET report by id */
 router.get('/:id', reportController.getReportById);
 
