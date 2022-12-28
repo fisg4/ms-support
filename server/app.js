@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const logger = require('morgan');
 const {openapiDocs} = require('../docs/swagger')
 
-const passport = require("./passport");
+const passport = require("../passport");
 const helloRoutes = require('./routes/hello')
 const reportsRoutes = require('./routes/reports');
 const ticketsRoutes = require('./routes/tickets');
@@ -30,7 +30,7 @@ openapiDocs(app);
 
 // setup mongodb
 const mongoose = require('mongoose');
-const DB_URL = (process.env.DB_URL || 'mongodb://localhost/test');
+const DB_URL = ("mongodb+srv://support:rDMKYSJQdTBYh6hb@cluster0.x1fgqws.mongodb.net/?retryWrites=true&w=majority" || 'mongodb://localhost/test');
 
 mongoose.connect(DB_URL);
 const db = mongoose.connection;
