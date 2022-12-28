@@ -44,7 +44,7 @@ const createReport = async (request, response, next) => {
 
     try {
         await report.save();
-        return response.status(201).send(report.cleanup());
+         response.status(201).send(report.cleanup());
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
@@ -105,6 +105,7 @@ const updateReport = async (request, response, next) => {
                 message: "All operations completed successfully.",
                 content: report
             });
+            return;
         }
     } catch (error) {
         if (error.errors) {
@@ -136,7 +137,7 @@ const deleteReport = async (request, response, next) => {
 
     try {
         await Report.findByIdAndDelete(reportId);
-        return response.sendStatus(204);
+         response.sendStatus(204);
     } catch (error) {
         debug("Database problem", error);
         response.sendStatus(404).send({ error: error.message });

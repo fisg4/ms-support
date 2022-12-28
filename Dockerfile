@@ -8,6 +8,7 @@ COPY package-lock.json .
 RUN npm install
 
 COPY server/ ./server
+COPY docs ./docs
 
 EXPOSE 3000
 

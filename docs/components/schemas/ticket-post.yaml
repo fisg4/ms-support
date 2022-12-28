@@ -1,0 +1,24 @@
+components:
+  schemas:
+    TicketPost:
+      type: object
+      properties:
+        authorId:
+          type: ObjectId
+          example: 507f1f77bcf86cd799439011
+        messageId:
+          type: ObjectId
+          example: 6397819481f989ded88dc692
+        title:
+          type: String
+          maxLength: 100
+          example: "Can not listen to a song"
+        text:
+          type: String
+          maxLength: 255
+          example: "When I try to listen Motomami from Rosalía, it does not play nothing."
+        priority:
+          type: String
+          enum:
+            values: ['low', 'medium', 'high']
+          default: 'low'
