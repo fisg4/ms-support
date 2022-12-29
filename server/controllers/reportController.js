@@ -1,17 +1,27 @@
 const Report = require("../models/report");
 const debug = require('debug');
 const sendGridService = require("../services/sendgrid");
+const messageService = require("../services/messages");
 
 
 /* GET all reports */
 const getAllReports = async (request, response, next) => {
     try {
         const result = await Report.find();
-        response.send(result.map((report) => report.cleanup()));
+        response.status(200).send({
+            success: true,
+            message: "All reports found",
+            content: result
+        });
     } catch (error) {
-        debug("Database problem", error);
-        response.sendStatus(404).send({error: error.message});
+        debug("Request problem");
+        response.status(404).send({
+            success: true,
+            message: "Not found. There are some problems with the request",
+            content: null
+        });
     }
+    return;
 };
 
 /* GET report by id */
@@ -22,13 +32,13 @@ const getReportById = async (request, response, next) => {
         response.send(result.cleanup());
     } catch (error) {
         debug("Database problem", error);
-        response.sendStatus(404).send({error: error.message});
+        response.sendStatus(404).send({ error: error.message });
     }
 };
 
 /* POST report by normal user */
 const createReport = async (request, response, next) => {
-    const {authorId, messageId, title, text} = request.body;
+    const { authorId, messageId, title, text } = request.body;
     const createDate = Date.now();
     const report = new Report({ authorId, messageId, title, text, createDate });
 
@@ -38,7 +48,10 @@ const createReport = async (request, response, next) => {
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
-            response.status(400).send({error: error.message});
+            response.status(400).send({ error: error.message });
+        } else if (error.code === 11000) {
+            debug("Duplicated report for the same message");
+            response.status(409).send({ error: "You can not report the same message twice" });
         } else {
             debug("Database problem", error);
             response.sendStatus(500);
@@ -46,28 +59,74 @@ const createReport = async (request, response, next) => {
     }
 };
 
+const sendEmailToReporter = async (response, report) => {
+    // TODO: Get user email from database
+    await sendGridService.sendEmail(response, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
+}
+
+const updateMessageContent = async (response, report) => {
+    if (report.status === "approved") {
+        await messageService.banMessage(response, report, true);
+    } else {
+        await messageService.banMessage(response, report, false);
+    }
+}
+
 /* PATCH report by admin */
 const updateReport = async (request, response, next) => {
-    const {reviewerId, status} = request.body;
-    const updateDate = Date.now()
+    const { reviewerId, status } = request.body;
     const reportId = request.params.id;
-
+    const report = await Report.findById(reportId);
+    if (!report) {
+        response.status(404).send({
+            success: false,
+            message: "Not found. There are some problems with the request",
+            content: null
+        });
+        return;
+    } else if (report.reviewerId) {
+        response.status(400).send({
+            success: false,
+            message: "Bad request. The report has already been reviewed",
+            content: null
+        });
+        return;
+    }
     try {
-        const report = await Report.findById(reportId);
-        report.reviewerId = reviewerId; report.status = status; report.updateDate = updateDate
-        await report.save();
-        if (report.status === "validated"){
-            const res = await sendGridService.sendEmail({email: "mmolino@us.es", name: "María Elena"}, report.title);
-             response.sendStatus(res.status)
+        await report.updateReport(reviewerId, status);
+        await updateMessageContent(response, report);
+        if (report.status === "approved") {
+            await sendEmailToReporter(response, report);
         }
-         response.sendStatus(201);
+
+        if (!(response.statusCode != 200)) {
+            response.status(200).send({
+                success: true,
+                message: "All operations completed successfully.",
+                content: report
+            });
+            return;
+        }
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when updating");
-            response.status(400).send({error: error.message});
+            response.status(400).send({
+                success: false,
+                message: "Validation problem when updating.",
+                content: null
+            });
+            return;
         } else {
+            // Rollback the operation
+            if (report.reviewerId) await report.rollbackUpdateReport();
+            await messageService.unbanMessage(response, report);
             debug("Database problem", error);
-            response.sendStatus(500);
+            response.status(500).send({
+                success: false,
+                message: "Internal server error. There are some problems with the request",
+                content: null
+            });
+            return;
         }
     }
 };
@@ -81,7 +140,7 @@ const deleteReport = async (request, response, next) => {
          response.sendStatus(204);
     } catch (error) {
         debug("Database problem", error);
-        response.sendStatus(404).send({error: error.message});
+        response.sendStatus(404).send({ error: error.message });
     }
 };
 

@@ -10,9 +10,10 @@ const reportSchema = new mongoose.Schema({
     },
     messageId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        unique: true
     },
-    title:{
+    title: {
         type: String,
         maxLength: 100,
         required: true
@@ -25,7 +26,7 @@ const reportSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: {
-            values: ['sent', 'rejected', 'validated'],
+            values: ['sent', 'rejected', 'approved'],
             message: '{VALUE} is not supported'
         },
         default: 'sent',
@@ -42,6 +43,7 @@ const reportSchema = new mongoose.Schema({
 
 reportSchema.methods.cleanup = function () {
     return {
+        _id: this._id,
         authorId: this.authorId,
         reviewerId: this.reviewerId,
         messageId: this.messageId,
@@ -52,6 +54,21 @@ reportSchema.methods.cleanup = function () {
         updateDate: this.updateDate
     }
 }
+
+reportSchema.methods.updateReport = function updateReport(reviewerId, status) {
+    this.reviewerId = reviewerId;
+    this.status = status;
+    this.updateDate = Date.now();
+    return this.save();
+};
+
+reportSchema.methods.rollbackUpdateReport = function rollbackUpdateReport() {
+    this.reviewerId = null;
+    this.status = "sent";
+    this.updateDate = null;
+    return this.save();
+};
+
 
 const Report = mongoose.model('Report', reportSchema);
 
