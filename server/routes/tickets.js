@@ -6,19 +6,19 @@ const router = express.Router();
 /* GET all tickets */
 router.get('/', ticketController.getAllTickets);
 
-/* GET user tickets */
-router.get('/', ticketController.getUserTickets);
+/* GET all tickets by user id */
+router.get('/user/:id', ticketController.getUserTickets);
 
-/* GET ticket */
+/* GET ticket by id */
 router.get('/:id', ticketController.getTicket);
 
-/* POST ticket */
+/* POST ticket by normal user */
 router.post('/', ticketController.createTicket);
 
-/* PATCH ticket */
+/* PATCH ticket by admin */
 router.patch('/:id', ticketController.updateTicket);
 
-/* DELETE ticket */
+/* DELETE ticket by admin */
 router.delete('/:id', ticketController.deleteTicket);
 
 module.exports = router;
