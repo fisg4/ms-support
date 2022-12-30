@@ -2,6 +2,7 @@ const Report = require("../models/report");
 const debug = require('debug');
 const sendGridService = require("../services/sendgrid");
 const messageService = require("../services/messages");
+const {decodeToken} = require("../auth/jwt");
 
 
 /* GET all reports */
@@ -33,7 +34,19 @@ const getAllReports = async (request, response, next) => {
 
 /* GET all reports by user id */
 const getAllReportsByUserId = async (request, response, next) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const id = request.params.id;
+
+    if (decodedToken.id !== id) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only get your own reports",
+            content: null
+        });
+        return;
+    }
+
     try {
         const result = await Report.find({ authorId: id });
         if (result.length === 0) {
@@ -62,7 +75,19 @@ const getAllReportsByUserId = async (request, response, next) => {
 
 /* GET report by id */
 const getReportById = async (request, response, next) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const id = request.params.id;
+
+    if (decodedToken.role !== "admin" && decodedToken.id !== id) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only get your own reports",
+            content: null
+        });
+        return;
+    }
+    
     try {
         const result = await Report.findById(id);
         if (!result) {
@@ -90,7 +115,18 @@ const getReportById = async (request, response, next) => {
 
 /* POST report by normal user */
 const createReport = async (request, response, next) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const { authorId, messageId, title, text } = request.body;
+
+    if (decodedToken.id !== authorId) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only create reports for yourself",
+            content: null
+        });
+        return;
+    }
 
     try {
         const report = await Report.createReport(authorId, messageId, title, text);
@@ -140,8 +176,20 @@ const updateMessageContent = async (response, report) => {
 
 /* PATCH report by admin */
 const updateReport = async (request, response, next) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const { reviewerId, status } = request.body;
     const reportId = request.params.id;
+
+    if (decodedToken.id !== reviewerId) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only update reports for yourself",
+            content: null
+        });
+        return;
+    }
+
     const report = await Report.findById(reportId);
     if (!report) {
         response.status(404).send({
