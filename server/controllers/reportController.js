@@ -8,6 +8,14 @@ const messageService = require("../services/messages");
 const getAllReports = async (request, response, next) => {
     try {
         const result = await Report.find();
+        if (result.length === 0) {
+            response.status(404).send({
+                success: false,
+                message: "No reports found",
+                content: null
+            });
+            return;
+        }
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -15,46 +23,104 @@ const getAllReports = async (request, response, next) => {
         });
     } catch (error) {
         debug("Request problem");
-        response.status(404).send({
-            success: true,
-            message: "Not found. There are some problems with the request",
+        response.status(500).send({
+            success: false,
+            message: "Internal server error. Error getting reports",
             content: null
         });
     }
-    return;
+};
+
+/* GET all reports by user id */
+const getAllReportsByUserId = async (request, response, next) => {
+    const id = request.params.id;
+    try {
+        const result = await Report.find({ authorId: id });
+        if (result.length === 0) {
+            response.status(404).send({
+                success: false,
+                message: `No reports found for user with id '${id}' `,
+                content: null
+            });
+            return;
+        }
+
+        response.status(200).send({
+            success: true,
+            message: "All reports found",
+            content: result
+        });
+    } catch (error) {
+        debug("Request problem");
+        response.status(500).send({
+            success: false,
+            message: `Internal server error. Error getting reports of the user with id '${id}'.`,
+            content: null
+        });
+    }
 };
 
 /* GET report by id */
 const getReportById = async (request, response, next) => {
+    const id = request.params.id;
     try {
-        const id = request.params.id;
         const result = await Report.findById(id);
-        response.send(result.cleanup());
+        if (!result) {
+            response.status(404).send({
+                success: false,
+                message: `Report with id '${id}' not found`,
+                content: null
+            });
+            return;
+        }
+        response.status(200).send({
+            success: true,
+            message: "All reports found",
+            content: result
+        });
     } catch (error) {
-        debug("Database problem", error);
-        response.sendStatus(404).send({ error: error.message });
+        debug("Request problem");
+        response.status(500).send({
+            success: false,
+            message: `Error getting report with id '${id}'. Review the request`,
+            content: null
+        });
     }
 };
 
 /* POST report by normal user */
 const createReport = async (request, response, next) => {
     const { authorId, messageId, title, text } = request.body;
-    const createDate = Date.now();
-    const report = new Report({ authorId, messageId, title, text, createDate });
 
     try {
-        await report.save();
-         response.status(201).send(report.cleanup());
+        const report = await Report.createReport(authorId, messageId, title, text);
+        response.status(201).send({
+            success: true,
+            message: "Report created successfully",
+            content: report
+        });
     } catch (error) {
         if (error.errors) {
             debug("Validation problem when saving");
-            response.status(400).send({ error: error.message });
+            response.status(400).send({
+                success: false,
+                message: "Validation problem when updating.",
+                content: null
+            });
         } else if (error.code === 11000) {
             debug("Duplicated report for the same message");
-            response.status(409).send({ error: "You can not report the same message twice" });
+            response.status(409).send({
+                success: false,
+                message: "Message can not be reported twice",
+                content: null
+            });
         } else {
-            debug("Database problem", error);
-            response.sendStatus(500);
+            debug("System problem", error);
+            response.status(500).send({
+                success: false,
+                message: "Internal server error. There are some problems with the request",
+                content: null
+            });
         }
     }
 };
@@ -80,12 +146,12 @@ const updateReport = async (request, response, next) => {
     if (!report) {
         response.status(404).send({
             success: false,
-            message: "Not found. There are some problems with the request",
+            message: "Report not found. There are some problems with the request",
             content: null
         });
         return;
     } else if (report.reviewerId) {
-        response.status(400).send({
+        response.status(409).send({
             success: false,
             message: "Bad request. The report has already been reviewed",
             content: null
@@ -105,7 +171,6 @@ const updateReport = async (request, response, next) => {
                 message: "All operations completed successfully.",
                 content: report
             });
-            return;
         }
     } catch (error) {
         if (error.errors) {
@@ -115,18 +180,16 @@ const updateReport = async (request, response, next) => {
                 message: "Validation problem when updating.",
                 content: null
             });
-            return;
         } else {
             // Rollback the operation
             if (report.reviewerId) await report.rollbackUpdateReport();
             await messageService.unbanMessage(response, report);
-            debug("Database problem", error);
+            debug("System problem", error);
             response.status(500).send({
                 success: false,
                 message: "Internal server error. There are some problems with the request",
                 content: null
             });
-            return;
         }
     }
 };
@@ -137,13 +200,17 @@ const deleteReport = async (request, response, next) => {
 
     try {
         await Report.findByIdAndDelete(reportId);
-         response.sendStatus(204);
+        return response.sendStatus(204);
     } catch (error) {
-        debug("Database problem", error);
-        response.sendStatus(404).send({ error: error.message });
+        debug("Request problem", error);
+        response.sendStatus(404).send({
+            success: false,
+            message: "Not found. There are some problems with the request",
+            content: null
+        });
     }
 };
 
 module.exports = {
-    getAllReports, getReportById, createReport, updateReport, deleteReport
+    getAllReports, getAllReportsByUserId, getReportById, createReport, updateReport, deleteReport
 };

@@ -27,7 +27,6 @@ const sendEmail = async (response, report, user, title) => {
             message: "Some problem sending the email with SendGrid Service",
             content: null
         });
-        return;
     }
 };
 
