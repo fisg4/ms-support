@@ -1,6 +1,8 @@
 paths:
   /reports:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Get all reports
@@ -19,6 +21,8 @@ paths:
         "500":
           description: Internal server error. Error getting reports
     post:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Post a new report in the system by user
@@ -45,6 +49,8 @@ paths:
           description: Internal server error. There are some problems with the request
   /reports/{id}:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Find report by ID
@@ -68,6 +74,8 @@ paths:
         "500":
           description: Error getting report
     patch:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Update a report by admin
@@ -97,6 +105,8 @@ paths:
         "500":
           description: Internal server error. Problems with the request
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Delete a report
@@ -115,6 +125,8 @@ paths:
           description: Report not found
   /reports/user/{id}:
     get:
+      security:
+        - bearerAuth: []
       tags:
         - Reports
       summary: Get all reports by user id
