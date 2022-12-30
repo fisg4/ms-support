@@ -64,13 +64,21 @@ ticketSchema.statics.insert = (authorId, songId, title, text, priority) => {
 
 // instance methods
 
-ticketSchema.methods.updateTicket = function update(reviewerId, status, priority) {
+ticketSchema.methods.updateTicket = function updateTicket(reviewerId, status, priority) {
     this.reviewerId = reviewerId;
     this.status = status;
     this.priority = priority;
     this.updateDate = Date.now();
     return this.save();
 };
+
+ticketSchema.methods.rollbackUpdate = function rollbackUpdate(oldStatus, oldPriority) {
+    this.reviewerId = null;
+    this.status = oldStatus;
+    this.priority = oldPriority;
+    this.updateDate = null;
+    return this.save();
+}
 
 ticketSchema.methods.removeTicket = function removeTicket() {
     this.remove();
