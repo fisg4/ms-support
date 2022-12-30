@@ -4,3 +4,4 @@ support:
 supportMongoUrl: mongodb://mongo/test
 
 supportSendgridApiKey: b64enc
+jwtSecret: required value
