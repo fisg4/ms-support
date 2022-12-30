@@ -161,16 +161,16 @@ const createReport = async (request, response, next) => {
     }
 };
 
-const sendEmailToReporter = async (response, report) => {
+const sendEmailToReporter = async (response, token, report) => {
     // TODO: Get user email from database
-    await sendGridService.sendEmail(response, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
+    await sendGridService.sendEmail(response, token, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
 }
 
-const updateMessageContent = async (response, report) => {
+const updateMessageContent = async (response, token, report) => {
     if (report.status === "approved") {
-        await messageService.banMessage(response, report, true);
+        await messageService.banMessage(response, token, report, true);
     } else {
-        await messageService.banMessage(response, report, false);
+        await messageService.banMessage(response, token, report, false);
     }
 }
 
@@ -208,9 +208,9 @@ const updateReport = async (request, response, next) => {
     }
     try {
         await report.updateReport(reviewerId, status);
-        await updateMessageContent(response, report);
+        await updateMessageContent(response, token, report);
         if (report.status === "approved") {
-            await sendEmailToReporter(response, report);
+            await sendEmailToReporter(response, token, report);
         }
 
         if (!(response.statusCode != 200)) {
@@ -231,7 +231,7 @@ const updateReport = async (request, response, next) => {
         } else {
             // Rollback the operation
             if (report.reviewerId) await report.rollbackUpdateReport();
-            await messageService.unbanMessage(response, report);
+            await messageService.unbanMessage(response, token, report);
             debug("System problem", error);
             response.status(500).send({
                 success: false,
