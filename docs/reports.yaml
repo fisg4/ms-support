@@ -1,0 +1,152 @@
+paths:
+  /reports:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Get all reports
+      description: Returns all the reports in the system
+      responses:
+        "200":
+          description: A list of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: No reports found
+        "500":
+          description: Internal server error. Error getting reports
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Post a new report in the system by user
+      description: Report an ofensive message to get it banned
+      requestBody:
+        description: Created report object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportPost"
+      responses:
+        "201":
+          description: Successful operation. Posted report
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Report"
+        "400":
+          description: Validation problem when saving
+        "409": 
+          description: Message can not be reported twice
+        "500":
+          description: Internal server error. There are some problems with the request
+  /reports/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Find report by ID
+      description: Returns a single report by ID
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+        "500":
+          description: Error getting report
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Update a report by admin
+      description: Approve or reject a report
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update report object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
+      responses:
+        "201":
+          description: Successful operation. Updated report
+        "400":
+          description: Validation problem when saving
+        "404":
+          description: Report not found
+        "409":
+          description: The report has already been reviewed
+        "500":
+          description: Internal server error. Problems with the request
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Delete a report
+      description: Delete a report permanently from the system
+      parameters:
+        - name: id
+          in: path
+          description: Report id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Report not found
+  /reports/user/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Reports
+      summary: Get all reports by user id
+      description: Returns all user reports in the system
+      responses:
+        "200":
+          description: A list of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "404":
+          description: No reports found of this user 
+        "500":
+          description: Internal server error. Error getting reports
+
+components:
+  $ref:
+    - "./components/schemas/report.yaml"
+    - "./components/schemas/report-post.yaml"
+    - "./components/schemas/report-patch.yaml"

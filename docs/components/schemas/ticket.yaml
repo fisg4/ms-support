@@ -1,0 +1,38 @@
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        authorId:
+          type: ObjectId
+          example: 507f1f77bcf86cd799439011
+        reviewerId:
+          type: ObjectId
+          example: 637d0c328a43d958f6ff661d
+        songId:
+          type: ObjectId
+          example: 6397819481f989ded88dc692
+        title:
+          type: String
+          maxLength: 100
+          example: "Can not listen to a song"
+        text:
+          type: String
+          maxLength: 255
+          example: "When I try to listen Motomami from Rosalía, it does not play nothing."
+        status:
+          type: String
+          enum:
+            values: ['sent', 'rejected', 'validated']
+          default: 'sent'
+        priority:
+          type: String
+          enum:
+            values: ['low', 'medium', 'high']
+          default: 'low'
+        createDate:
+          type: Date
+          example: "2022-12-17T09:05:05.954Z"
+        updateDate:
+          type: Date
+          example: "2022-12-17T10:05:05.954Z"

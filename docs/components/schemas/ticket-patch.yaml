@@ -1,0 +1,18 @@
+components:
+  schemas:
+    TicketPatch:
+      type: object
+      properties:
+        reviewerId:
+          type: ObjectId
+          example: 637d0c328a43d958f6ff661d
+        status:
+          type: String
+          enum:
+            values: ['sent', 'rejected', 'validated']
+          example: "sent"
+        priority:
+          type: String
+          enum:
+            values: ['low', 'medium', 'high']
+          default: 'low'

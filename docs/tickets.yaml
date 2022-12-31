@@ -1,0 +1,111 @@
+paths:
+  /tickets:
+    get:
+      tags:
+        - Tickets
+      summary: Get all tickets
+      description: Returns all the tickets in the system
+      responses:
+        "200":
+          description: A list of tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+        "404":
+          description: Database problem
+    post:
+      tags:
+        - Tickets
+      summary: Post a new ticket in the system by user
+      description: Report an incident regarding a song or the behavior of the application
+      requestBody:
+        description: Created ticket object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketPost"
+      responses:
+        "201":
+          description: Successful operation. Posted ticket
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Ticket"
+        "400":
+          description: Validation problem when saving
+        "500":
+          description: Database problem
+  /tickets/{id}:
+    get:
+      tags:
+        - Tickets
+      summary: Find ticket by ID
+      description: Returns a single ticket by ID
+      parameters:
+        - name: id
+          in: path
+          description: Ticket id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ticket requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "404":
+          description: Database problem
+    patch:
+      tags:
+        - Tickets
+      summary: Update a ticket by admin
+      description: Approve or reject a ticket
+      parameters:
+        - name: id
+          in: path
+          description: Ticket id in the system
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update ticket object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketPatch"
+      responses:
+        "201":
+          description: Successful operation. Updated ticket
+        "400":
+          description: Validation problem when saving
+        "500":
+          description: Database problem
+    delete:
+      tags:
+        - Tickets
+      summary: Delete a ticket
+      description: Delete a ticket permanently from the system
+      parameters:
+        - name: id
+          in: path
+          description: Ticket id in the system
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Database problem
+
+components:
+  $ref:
+    - "./components/schemas/ticket.yaml"
+    - "./components/schemas/ticket-post.yaml"
+    - "./components/schemas/ticket-patch.yaml"

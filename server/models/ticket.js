@@ -48,18 +48,40 @@ const ticketSchema = new mongoose.Schema({
     }
 });
 
-ticketSchema.methods.cleanup = function() {
-    return {
-        authorId: this.authorId,
-        reviewerId: this.reviewerId,
-        songId: this.songId,
-        title: this.title,
-        text: this.text,
-        status: this.status,
-        priority: this.priority,
-        createDate: this.date,
-        updateDate: this.updateDate
-    }
+// static methods
+
+ticketSchema.statics.getById = (id) => mongoose.model('Ticket').findById(id);
+
+ticketSchema.statics.getAll = () => mongoose.model('Ticket').find();
+
+ticketSchema.statics.getUserTickets = (id) => mongoose.model('Ticket').find({authorId: id});
+
+ticketSchema.statics.insert = (authorId, songId, title, text, priority) => {
+    let newTicket = {authorId, songId, title, text, priority, createDate: Date.now()};
+
+    return mongoose.model('Ticket').create(newTicket);
+};
+
+// instance methods
+
+ticketSchema.methods.updateTicket = function updateTicket(reviewerId, status, priority) {
+    this.reviewerId = reviewerId;
+    this.status = status;
+    this.priority = priority;
+    this.updateDate = Date.now();
+    return this.save();
+};
+
+ticketSchema.methods.rollbackUpdate = function rollbackUpdate(oldStatus, oldPriority) {
+    this.reviewerId = null;
+    this.status = oldStatus;
+    this.priority = oldPriority;
+    this.updateDate = null;
+    return this.save();
+}
+
+ticketSchema.methods.removeTicket = function removeTicket() {
+    this.remove();
 }
 
 const Ticket = mongoose.model('Ticket', ticketSchema);

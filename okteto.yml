@@ -6,6 +6,7 @@ deploy:
   - helm upgrade --install ms-support chart
     --set support.image=${OKTETO_BUILD_MS_SUPPORT_IMAGE}
     --set supportMongoUrl=$SUPPORT_DB_URL
+    --set jwtSecret=$JWT_SECRET
 
 dev:
   ms-support:

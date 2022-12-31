@@ -1,21 +1,25 @@
 const express = require('express');
 const ticketController = require('../controllers/ticketController');
+const passport = require("passport");
 
 const router = express.Router();
 
 /* GET all tickets */
-router.get('/', ticketController.getAllTickets);
+router.get('/', passport.authenticate("admin", { session: false }), ticketController.getAllTickets);
 
-/* GET ticket */
-router.get('/:id', ticketController.getTicketById);
+/* GET all tickets by user id */
+router.get('/user/:id',  passport.authenticate("user", { session: false }), ticketController.getUserTickets);
 
-/* POST ticket */
-router.post('/', ticketController.createTicket);
+/* GET ticket by id */
+router.get('/:id', passport.authenticate(["admin", "user"], { session: false }), ticketController.getTicket);
 
-/* PATCH ticket */
-router.patch('/:id', ticketController.updateTicket);
+/* POST ticket by normal user */
+router.post('/', passport.authenticate(["admin", "user"], { session: false }), ticketController.createTicket);
 
-/* DELETE ticket */
-router.delete('/:id', ticketController.deleteTicket);
+/* PATCH ticket by admin */
+router.patch('/:id', passport.authenticate("user", { session: false }), ticketController.updateTicket);
+
+/* DELETE ticket by admin */
+router.delete('/:id', passport.authenticate("user", { session: false }), ticketController.deleteTicket);
 
 module.exports = router;
