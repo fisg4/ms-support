@@ -9,7 +9,6 @@ RUN npm install --no-optional
 
 COPY server/ ./server
 COPY docs ./docs
-COPY passport.js .
 
 EXPOSE 3000
 

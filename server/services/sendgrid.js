@@ -14,12 +14,12 @@ function getMessage(user, title) {
     return message
 }
 
-const sendEmail = async (response, report, user, title) => {
+const sendEmail = async (response, token, report, user, title) => {
     try {
-        await sendGridMail.send(getMessage( title));
+        await sendGridMail.send(getMessage(user, title));
     } catch (error) {
         // Rollback the operation
-        await messageService.unbanMessage(response, report.messageId, report.reviewerId.toString());
+        await messageService.unbanMessage(response, token, report.messageId, report.reviewerId.toString());
         await report.rollbackUpdateReport();
         debug("Services Problem");
         response.status(500).send({
