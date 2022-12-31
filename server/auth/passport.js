@@ -20,8 +20,8 @@ passport.use(
     })
 );
 
-async function authorized(user, role) {
-    return user.role == role;
+function authorized(user, role) {
+    return user.role === role;
 };
 
 module.exports = passport;

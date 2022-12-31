@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const logger = require('morgan');
 const {openapiDocs} = require('../docs/swagger')
 
-const passport = require("../passport");
+const passport = require("./auth/passport");
 const helloRoutes = require('./routes/hello')
 const reportsRoutes = require('./routes/reports');
 const ticketsRoutes = require('./routes/tickets');
