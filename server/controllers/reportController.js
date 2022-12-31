@@ -10,7 +10,7 @@ const getAllReports = async (request, response, next) => {
         response.send(result.map((report) => report.cleanup()));
     } catch (error) {
         debug("Database problem", error);
-        response.sendStatus(404).send({error: error.message});
+        response.status(404).json({error: error.message});
     }
 };
 
@@ -22,7 +22,7 @@ const getReportById = async (request, response, next) => {
         response.send(result.cleanup());
     } catch (error) {
         debug("Database problem", error);
-        response.sendStatus(404).send({error: error.message});
+        response.status(404).json({error: error.message});
     }
 };
 
