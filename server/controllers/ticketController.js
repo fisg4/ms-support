@@ -1,7 +1,7 @@
 const Ticket = require("../models/ticket");
 const songService = require("../services/songs");
 const debug = require('debug');
-const { compile } = require("morgan");
+const {decodeToken} = require("../auth/jwt");
 
 
 /* GET all tickets */
@@ -33,7 +33,19 @@ const getAllTickets = async (request, response) => {
 
 /* GET all tickets by user id */
 const getUserTickets = async (request, response) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const id = request.params.id;
+
+    if (decodedToken.id !== id) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only read your own tickets",
+            content: null
+        });
+        return;
+    }
+
     try {
         const tickets = await Ticket.find({ authorId: id });
         if (!tickets) {
@@ -61,7 +73,18 @@ const getUserTickets = async (request, response) => {
 
 /* GET ticket by id */
 const getTicket = async (request, response) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const { id } = request.params;
+
+    if (decodedToken.id !== id) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only read your own tickets",
+            content: null
+        });
+        return;
+    }
 
     try {
         const ticket = await Ticket.getById(id);
@@ -90,7 +113,18 @@ const getTicket = async (request, response) => {
 
 /* POST ticket by normal user */
 const createTicket = async (request, response) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const { authorId, songId, title, text, priority } = request.body;
+
+    if (decodedToken.id !== authorId) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only create tickets for yourself",
+            content: null
+        });
+        return;
+    }
 
     try {
         const ticket = await Ticket.insert(authorId, songId, title, text, priority);
@@ -131,8 +165,19 @@ const updateSongUrl = async (ticket) => {
 
 /* PATCH ticket by admin */
 const updateTicket = async (request, response) => {
+    const token = request.headers.authorization;
+    const decodedToken = decodeToken(token);
     const { id } = request.params;
     const { reviewerId, status, priority } = request.body;
+
+    if (decodedToken.id !== reviewerId) {
+        response.status(401).send({
+            success: false,
+            message: "Unauthorized. You can only update tickets for yourself",
+            content: null
+        });
+        return;
+    }
 
     try {
         var ticket = await Ticket.getById(id);
