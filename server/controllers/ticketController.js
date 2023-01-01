@@ -8,14 +8,7 @@ const { compile } = require("morgan");
 const getAllTickets = async (request, response) => {
     try {
         const tickets = await Ticket.getAll();
-        if (!tickets) {
-            response.status(404).json({
-                success: false,
-                message: `No tickets found`,
-                content: {}
-            });
-            return;
-        }
+
         response.status(200).send({
             success: true,
             message: "All tickets found",
@@ -36,14 +29,7 @@ const getUserTickets = async (request, response) => {
     const id = request.params.id;
     try {
         const tickets = await Ticket.find({ authorId: id });
-        if (!tickets) {
-            response.status(404).send({
-                success: false,
-                message: `No tickets found for user with id '${id}' `,
-                content: null
-            });
-            return;
-        }
+
         response.status(200).send({
             success: true,
             message: "All tickets found",
