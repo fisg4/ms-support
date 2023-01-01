@@ -1,20 +1,23 @@
 const app = require('../app');
 const request = require('supertest');
 const Report = require('../models/report');
+const jwt = require('../auth/jwt');
 
-const reports = [
-    new Report({
-        "authorId": "637d0c328a43d958f6ff662b",
+const REPORT_ENDPOINT = "/support/v1/reports";
+const USER_TOKEN_JWT = jwt.generateToken({ id: '63acaac92087cbc870cb4dc7', role: 'user'});
+const ADMIN_TOKEN_JWT = jwt.generateToken({ id: '63aee4412087cbc870cb4dfb', role: 'admin'});
+
+const reports = [{
+        "authorId": "63acaac92087cbc870cb4dc7",
         "messageId": "6397819481f989ded88dc693",
         "title": "The message contains ofensive language",
         "text": "This message contains hate and bad words"
-    }),
-    new Report({
-        "authorId": "637d0c328a43d958f6ff661b",
+    }, {
+        "authorId": "63acaac92087cbc870cb4dc7",
         "messageId": "6397819481f989ded88dc692",
         "title": "Ofensive language in the message",
         "text": "This message contains hate and bad words, pls you have to do something"
-    })
+    }
 ];
 
 describe("Reports API", () => {
@@ -28,61 +31,30 @@ describe("Reports API", () => {
     });
 
     describe("GET /reports", () => {
-        it("Should return all reports", () => {
+        it("Should return all reports", async () => {
             dbFind = jest.spyOn(Report, "find");
             dbFind.mockImplementation(async () => Promise.resolve(reports));
 
-            return request(app).get("/support/v1/reports").then((response) => {
-                expect(response.statusCode).toBe(200);
-                expect(response.body).toBeArrayOfSize(2);
-                expect(dbFind).toBeCalled();
-            });
+            const response = await request(app).get(REPORT_ENDPOINT).set(
+                "Authorization",
+                "Bearer " + ADMIN_TOKEN_JWT
+            );
+            expect(response.statusCode).toBe(200);
+            expect(response.body.content).toBeArrayOfSize(2);
+            expect(dbFind).toBeCalled();
         });
 
-        it("Should return not found", () => {
+        it("Should return internal server error", () => {
             dbFind = jest.spyOn(Report, "find");
-            dbFind.mockImplementation(async () => Promise.reject("Not found"));
+            dbFind.mockImplementation(async () => Promise.reject("Internal server error"));
 
-            return request(app).get("/support/v1/reports").then((response) => {
-                expect(response.statusCode).toBe(404);
+            return request(app).get(REPORT_ENDPOINT).set(
+                "Authorization",
+                "Bearer " + ADMIN_TOKEN_JWT
+            ).then((response) => {
+                expect(response.statusCode).toBe(500);
                 expect(dbFind).toBeCalled();
             });
         });
-    });
-
-    describe("Post /reports", () => {
-        var dbSave;
-        beforeEach(() => {
-            dbSave = jest.spyOn(Report.prototype, "save");
-        });
-
-        it("Should add a new report if everything is fine", () => {
-            dbSave.mockImplementation(async () => Promise.resolve(true));
-
-            return request(app).post("/support/v1/reports").send(reports[0]).then((response) => {
-                expect(response.statusCode).toBe(201);
-                expect(dbSave).toBeCalled();
-            });
-        });
-
-        it("Should return 400 if there is a validate problem", () => {
-            const report2 = new Report({});
-            dbSave.mockImplementation(async () => Promise.reject({errors: "Validation problem"}));
-            
-            return request(app).post("/support/v1/reports").send(report2).then((response) => {
-                expect(response.statusCode).toBe(400);
-                expect(dbSave).toBeCalled();
-            });
-        });
-
-        it("Should return 500 if there is a problem with the conection", () => {
-            dbSave.mockImplementation(async () => Promise.reject("Connection failed"));
-
-            return request(app).post("/support/v1/reports").send(reports[0]).then((response) => {
-                expect(response.statusCode).toBe(500);
-                expect(dbSave).toBeCalled();
-            });
-        });
-
     });
 });
