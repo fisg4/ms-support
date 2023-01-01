@@ -32,10 +32,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
-      - run: npm run integration
+      - run: npm ci --no-optional
+      - run: npm run build --if-present --no-optional
+      - run: npm test --no-optional
+      - run: npm run integration --no-optional
         env:
           DB_URL: ${{ secrets.DB_TOKEN }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_TOKEN }}
