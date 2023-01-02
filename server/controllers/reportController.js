@@ -41,7 +41,7 @@ const getAllReportsByUserId = async (request, response, next) => {
     if (decodedToken.id !== id) {
         response.status(401).send({
             success: false,
-            message: "Unauthorized. You can only get your own reports",
+            message: "Unauthorized. You can only read your own reports",
             content: null
         });
         return;
@@ -82,12 +82,12 @@ const getReportById = async (request, response, next) => {
     if (decodedToken.role !== "admin" && decodedToken.id !== id) {
         response.status(401).send({
             success: false,
-            message: "Unauthorized. You can only get your own reports",
+            message: "Unauthorized. You can only read your own reports",
             content: null
         });
         return;
     }
-    
+
     try {
         const result = await Report.findById(id);
         if (!result) {
