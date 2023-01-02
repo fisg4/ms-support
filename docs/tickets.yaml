@@ -1,6 +1,8 @@
 paths:
   /tickets:
     get:
+     security:
+        - bearerAuth: []
       tags:
         - Tickets
       summary: Get all tickets
@@ -14,9 +16,11 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Ticket"
-        "404":
-          description: Database problem
+        "500":
+          description: Internal server error. Error getting tickets
     post:
+     security:
+        - bearerAuth: []
       tags:
         - Tickets
       summary: Post a new ticket in the system by user
@@ -37,10 +41,14 @@ paths:
                   $ref: "#/components/schemas/Ticket"
         "400":
           description: Validation problem when saving
+        "401":
+          description: Authorization required
         "500":
-          description: Database problem
+          description: Internal server error. There are some problems with the request
   /tickets/{id}:
     get:
+     security:
+        - bearerAuth: []
       tags:
         - Tickets
       summary: Find ticket by ID
@@ -59,9 +67,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Ticket"
-        "404":
-          description: Database problem
+        "401":
+          description: Authorization required
+        "500":
+          description:  Internal server error. Error getting the ticket
     patch:
+     security:
+        - bearerAuth: []
       tags:
         - Tickets
       summary: Update a ticket by admin
@@ -80,13 +92,19 @@ paths:
             schema:
               $ref: "#/components/schemas/TicketPatch"
       responses:
-        "201":
+        "204":
           description: Successful operation. Updated ticket
         "400":
-          description: Validation problem when saving
+          description: Validation problem when updating
+        "401":
+          description: Authorization required
+        "404":
+          description: Ticket not found
         "500":
-          description: Database problem
+          description:  Internal server error. Problems with the request
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - Tickets
       summary: Delete a ticket
@@ -101,8 +119,33 @@ paths:
       responses:
         "204":
           description: No Content
+        "401":
+          description: Authorization required
         "404":
-          description: Database problem
+          description: Ticket not found
+  /tickets/user/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Tickets
+      summary: Get all tickets by user id
+      description: Returns all user tickets in the system
+      responses:
+        "200":
+          description: A list of tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "401":
+          description: Authorization required
+        "404":
+          description: No tickets found of this user
+        "500":
+          description: Internal server error. Error getting tickets
 
 components:
   $ref:

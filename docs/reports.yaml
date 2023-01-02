@@ -16,6 +16,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
+        "401":
+          description: Authorization required
         "404":
           description: No reports found
         "500":
@@ -43,7 +45,9 @@ paths:
                   $ref: "#/components/schemas/Report"
         "400":
           description: Validation problem when saving
-        "409": 
+        "401":
+          description: Authorization required
+        "409":
           description: Message can not be reported twice
         "500":
           description: Internal server error. There are some problems with the request
@@ -69,6 +73,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
+        "401":
+          description: Authorization required
         "404":
           description: Report not found
         "500":
@@ -98,6 +104,8 @@ paths:
           description: Successful operation. Updated report
         "400":
           description: Validation problem when saving
+        "401":
+          description: Authorization required
         "404":
           description: Report not found
         "409":
@@ -121,6 +129,8 @@ paths:
       responses:
         "204":
           description: No Content
+        "401":
+          description: Authorization required
         "404":
           description: Report not found
   /reports/user/{id}:
@@ -140,8 +150,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
+        "401":
+          description: Authorization required
         "404":
-          description: No reports found of this user 
+          description: No reports found of this user
         "500":
           description: Internal server error. Error getting reports
 
