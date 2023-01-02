@@ -163,7 +163,8 @@ const createReport = async (request, response, next) => {
 
 const sendEmailToReporter = async (response, token, report) => {
     // TODO: Get user email from database
-    await sendGridService.sendEmail(response, token, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
+    const user = await userService.getUserById(response, token, report.authorId);
+    await sendGridService.sendEmail(response, token, report, { email: user.email, name: user.username }, report.title);
 }
 
 const updateMessageContent = async (response, token, report) => {
