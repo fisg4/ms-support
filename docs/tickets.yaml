@@ -1,7 +1,7 @@
 paths:
   /tickets:
     get:
-     security:
+      security:
         - bearerAuth: []
       tags:
         - Tickets
@@ -19,7 +19,7 @@ paths:
         "500":
           description: Internal server error. Error getting tickets
     post:
-     security:
+      security:
         - bearerAuth: []
       tags:
         - Tickets
@@ -47,7 +47,7 @@ paths:
           description: Internal server error. There are some problems with the request
   /tickets/{id}:
     get:
-     security:
+      security:
         - bearerAuth: []
       tags:
         - Tickets
@@ -72,7 +72,7 @@ paths:
         "500":
           description:  Internal server error. Error getting the ticket
     patch:
-     security:
+      security:
         - bearerAuth: []
       tags:
         - Tickets
