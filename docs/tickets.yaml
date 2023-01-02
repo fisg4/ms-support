@@ -41,6 +41,8 @@ paths:
                   $ref: "#/components/schemas/Ticket"
         "400":
           description: Validation problem when saving
+        "401":
+          description: Authorization required
         "500":
           description: Internal server error. There are some problems with the request
   /tickets/{id}:
@@ -65,6 +67,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Ticket"
+        "401":
+          description: Authorization required
         "500":
           description:  Internal server error. Error getting the ticket
     patch:
@@ -92,6 +96,8 @@ paths:
           description: Successful operation. Updated ticket
         "400":
           description: Validation problem when updating
+        "401":
+          description: Authorization required
         "404":
           description: Ticket not found
         "500":
@@ -113,6 +119,8 @@ paths:
       responses:
         "204":
           description: No Content
+        "401":
+          description: Authorization required
         "404":
           description: Ticket not found
   /tickets/user/{id}:
@@ -132,6 +140,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Report"
+        "401":
+          description: Authorization required
         "404":
           description: No tickets found of this user
         "500":
