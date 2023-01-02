@@ -39,5 +39,7 @@ jobs:
       - run: npm run integration --no-optional
         env:
           DB_URL: ${{ secrets.DB_TOKEN }}
+        env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_TOKEN }}
+        env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
