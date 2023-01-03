@@ -10,14 +10,6 @@ const {decodeToken} = require("../auth/jwt");
 const getAllReports = async (request, response, next) => {
     try {
         const result = await Report.find();
-        if (result.length === 0) {
-            response.status(404).send({
-                success: false,
-                message: "No reports found",
-                content: null
-            });
-            return;
-        }
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -50,15 +42,6 @@ const getAllReportsByUserId = async (request, response, next) => {
 
     try {
         const result = await Report.find({ authorId: id });
-        if (result.length === 0) {
-            response.status(404).send({
-                success: false,
-                message: `No reports found for user with id '${id}' `,
-                content: null
-            });
-            return;
-        }
-
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -80,15 +63,6 @@ const getReportById = async (request, response, next) => {
     const decodedToken = decodeToken(token);
     const id = request.params.id;
 
-    if (decodedToken.role !== "admin" && decodedToken.id !== id) {
-        response.status(401).send({
-            success: false,
-            message: "Unauthorized. You can only read your own reports",
-            content: null
-        });
-        return;
-    }
-
     try {
         const result = await Report.findById(id);
         if (!result) {
@@ -99,6 +73,16 @@ const getReportById = async (request, response, next) => {
             });
             return;
         }
+
+        if (decodedToken.role !== "admin" && decodedToken.id !== result.authorId) {
+            response.status(401).send({
+                success: false,
+                message: "Unauthorized. You can only read your own reports",
+                content: null
+            });
+            return;
+        }
+
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -162,27 +146,31 @@ const createReport = async (request, response, next) => {
     }
 };
 
-const sendEmailToReporter = async (response, token, report) => {
+const rollBackReport = async (response, report, bannedMessage) => {
+    if (report.reviewerId) await report.rollbackUpdateReport();
+    if (bannedMessage) await messageService.unbanMessage(response, report);
+}
+
+const sendEmailToReporter = async (response, report, bannedMessage) => {
     const user = await userService.getUserById(response, report.authorId);
-    if (user === false) //Rollback
-    await sendGridService.sendEmail(response, token, report, { email: user.email, name: user.username }, report.title);
+    if (user === false) {
+        //Rollback operation
+        await rollBackReport(response, report, bannedMessage);
+        return false;
+    } else {
+        const sendEmail = await sendGridService.sendEmail(response, { email: user.email, name: user.name }, report.title);
+        //Rollback operation
+        if (sendEmail === false) await rollBackReport(response, report, bannedMessage);
+    }
 }
 
 /* PATCH report by admin */
 const updateReport = async (request, response, next) => {
     const token = request.headers.authorization;
     const decodedToken = decodeToken(token);
-    const { reviewerId, status } = request.body;
+    const { status } = request.body;
     const reportId = request.params.id;
-
-    if (decodedToken.id !== reviewerId) {
-        response.status(401).send({
-            success: false,
-            message: "Unauthorized. You can only update reports for yourself",
-            content: null
-        });
-        return;
-    }
+    let bannedMessage;
 
     const report = await Report.findById(reportId);
     if (!report) {
@@ -200,9 +188,13 @@ const updateReport = async (request, response, next) => {
         });
         return;
     }
+
     try {
-        await report.updateReport(reviewerId, status);
-        console.log(report);
+        await report.updateReport(decodedToken.id, status);
+        bannedMessage = await messageService.banMessage(response, token, report, report.status === "approved");
+        //Rollback operation
+        if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
+        
         if (report.status === "approved") {
             await sendEmailToReporter(response, token, report);
         }
@@ -213,6 +205,8 @@ const updateReport = async (request, response, next) => {
                 message: "All operations completed successfully.",
                 content: report
             });
+        } else {
+            return false;
         }
     } catch (error) {
         if (error.errors) {
@@ -223,6 +217,8 @@ const updateReport = async (request, response, next) => {
                 content: null
             });
         } else {
+            //Rollback operation
+            await rollBackReport(response, report, bannedMessage);
             debug("System problem", error);
             response.status(500).send({
                 success: false,
