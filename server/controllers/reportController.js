@@ -145,34 +145,25 @@ const createReport = async (request, response, next) => {
     }
 };
 
-const sendEmailToReporter = async (response, token, report) => {
-    // TODO: Get user email from database
-    await sendGridService.sendEmail(response, token, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
+const rollBackReport = async (response, report, bannedMessage) => {
+    if (report.reviewerId) await report.rollbackUpdateReport();
+    if (bannedMessage) await messageService.unbanMessage(response, report);
 }
 
-const updateMessageContent = async (response, token, report) => {
-    if (report.status === "approved") {
-        await messageService.banMessage(response, token, report, true);
-    } else {
-        await messageService.banMessage(response, token, report, false);
-    }
+const sendEmailToReporter = async (response, token, report, bannedMessage) => {
+    // TODO: Get user email from database
+    const sendEmail = await sendGridService.sendEmail(response, token, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
+    //Rollback operation
+    if (sendEmail === false) await rollBackReport(response, report, bannedMessage);
 }
 
 /* PATCH report by admin */
 const updateReport = async (request, response, next) => {
     const token = request.headers.authorization;
     const decodedToken = decodeToken(token);
-    const { reviewerId, status } = request.body;
+    const { status } = request.body;
     const reportId = request.params.id;
-
-    if (decodedToken.id !== reviewerId) {
-        response.status(401).send({
-            success: false,
-            message: "Unauthorized. You can only update reports for yourself",
-            content: null
-        });
-        return;
-    }
+    let bannedMessage;
 
     const report = await Report.findById(reportId);
     if (!report) {
@@ -190,9 +181,13 @@ const updateReport = async (request, response, next) => {
         });
         return;
     }
+
     try {
-        await report.updateReport(reviewerId, status);
-        await updateMessageContent(response, token, report);
+        await report.updateReport(decodedToken.id, status);
+        bannedMessage = await messageService.banMessage(response, token, report, report.status === "approved");
+        //Rollback operation
+        if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
+        
         if (report.status === "approved") {
             await sendEmailToReporter(response, token, report);
         }
@@ -213,9 +208,7 @@ const updateReport = async (request, response, next) => {
                 content: null
             });
         } else {
-            // Rollback the operation
-            if (report.reviewerId) await report.rollbackUpdateReport();
-            await messageService.unbanMessage(response, token, report);
+            await rollBackReport(response, report, bannedMessage);
             debug("System problem", error);
             response.status(500).send({
                 success: false,
