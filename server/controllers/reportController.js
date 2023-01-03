@@ -1,6 +1,7 @@
 const Report = require("../models/report");
 const debug = require('debug');
 const sendGridService = require("../services/sendgrid");
+const userService = require("../services/users");
 const messageService = require("../services/messages");
 const {decodeToken} = require("../auth/jwt");
 
@@ -162,17 +163,9 @@ const createReport = async (request, response, next) => {
 };
 
 const sendEmailToReporter = async (response, token, report) => {
-    // TODO: Get user email from database
-    const user = await userService.getUserById(response, token, report.authorId);
+    const user = await userService.getUserById(response, report.authorId);
+    if (user === false) //Rollback
     await sendGridService.sendEmail(response, token, report, { email: user.email, name: user.username }, report.title);
-}
-
-const updateMessageContent = async (response, token, report) => {
-    if (report.status === "approved") {
-        await messageService.banMessage(response, token, report, true);
-    } else {
-        await messageService.banMessage(response, token, report, false);
-    }
 }
 
 /* PATCH report by admin */
@@ -209,7 +202,7 @@ const updateReport = async (request, response, next) => {
     }
     try {
         await report.updateReport(reviewerId, status);
-        await updateMessageContent(response, token, report);
+        console.log(report);
         if (report.status === "approved") {
             await sendEmailToReporter(response, token, report);
         }
@@ -230,9 +223,6 @@ const updateReport = async (request, response, next) => {
                 content: null
             });
         } else {
-            // Rollback the operation
-            if (report.reviewerId) await report.rollbackUpdateReport();
-            await messageService.unbanMessage(response, token, report);
             debug("System problem", error);
             response.status(500).send({
                 success: false,
