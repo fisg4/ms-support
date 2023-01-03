@@ -156,9 +156,8 @@ const sendEmailToReporter = async (response, report, bannedMessage) => {
     if (user === false) {
         //Rollback operation
         await rollBackReport(response, report, bannedMessage);
-        return false;
     } else {
-        const sendEmail = await sendGridService.sendEmail(response, { email: user.email, name: user.name }, report.title);
+        const sendEmail = await sendGridService.sendEmail(response, user, report.title);
         //Rollback operation
         if (sendEmail === false) await rollBackReport(response, report, bannedMessage);
     }
@@ -191,22 +190,17 @@ const updateReport = async (request, response, next) => {
 
     try {
         await report.updateReport(decodedToken.id, status);
-        bannedMessage = await messageService.banMessage(response, token, report, report.status === "approved");
+        bannedMessage = await messageService.banMessage(response, report, report.status === "approved");
         //Rollback operation
         if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
         
-        if (report.status === "approved") {
-            await sendEmailToReporter(response, token, report);
-        }
-
+        if (report.status === "approved") await sendEmailToReporter(response, report, bannedMessage);
         if (!(response.statusCode != 200)) {
             response.status(200).send({
                 success: true,
                 message: "All operations completed successfully.",
                 content: report
             });
-        } else {
-            return false;
         }
     } catch (error) {
         if (error.errors) {

@@ -14,7 +14,7 @@ router.get('/user/:id', passport.authenticate("user", { session: false }), repor
 router.get('/:id', passport.authenticate(["admin", "user"], { session: false }), reportController.getReportById);
 
 /* POST report by normal user */
-router.post('/', passport.authenticate(["admin", "user"], { session: false }), reportController.createReport);
+router.post('/', passport.authenticate("user", { session: false }), reportController.createReport);
 
 /* PATCH report by admin */
 router.patch('/:id', passport.authenticate("admin", { session: false }), reportController.updateReport);
