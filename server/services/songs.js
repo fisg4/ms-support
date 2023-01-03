@@ -2,7 +2,7 @@ const axios = require('axios');
 const urlJoin = require('url-join');
 const debug = require('debug');
 
-const SONG_HOST = "https://songs-fastmusik-marmolpen3.cloud.okteto.net";
+const SONG_HOST = process.env.SONG_HOST;
 const API_VERSION = "/api/v1";
 
 const changeUrl = async (id, songUrl, token) => {
