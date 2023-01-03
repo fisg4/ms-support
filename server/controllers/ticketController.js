@@ -63,15 +63,6 @@ const getTicket = async (request, response) => {
     const decodedToken = decodeToken(token);
     const { id } = request.params;
 
-    if (decodedToken.id !== id) {
-        response.status(401).send({
-            success: false,
-            message: "Unauthorized. You can only read your own tickets",
-            content: null
-        });
-        return;
-    }
-
     try {
         const ticket = await Ticket.getById(id);
         if (!ticket) {
@@ -82,6 +73,15 @@ const getTicket = async (request, response) => {
             });
             return;
         };
+        if (decodedToken.id !== ticket.authorId && decodedToken.role !== "admin") {
+            response.status(401).send({
+                success: false,
+                message: "Unauthorized. You can only read your own tickets",
+                content: null
+            });
+            return;
+        }
+
         response.status(200).send({
             success: true,
             message: "Ticket found",
@@ -138,17 +138,6 @@ const createTicket = async (request, response) => {
     }
 };
 
-
-const updateSongUrl = async (ticket) => {
-    try {
-        var response = await songService.changeUrl(ticket.songId.toString(), ticket.text);
-        return response;
-    } catch (error) {
-        debug('Services problem');
-        response.send({ error: error.message });
-    }
-}
-
 /* PATCH ticket by admin */
 const updateTicket = async (request, response) => {
     const token = request.headers.authorization;
@@ -165,8 +154,7 @@ const updateTicket = async (request, response) => {
         return;
     }
 
-    try {
-        var ticket = await Ticket.getById(id);
+    var ticket = await Ticket.getById(id);
         if (!ticket) {
             response.status(404).json({
                 success: false,
@@ -179,10 +167,11 @@ const updateTicket = async (request, response) => {
         const oldStatus = ticket.status;
         const oldPriority = ticket.priority;
 
+    try {
         await ticket.updateTicket(reviewerId, status, priority);
 
         if (ticket.status === 'validated' && ticket.songId) {
-            var songsResponse = await updateSongUrl(ticketUpdated);
+            const songsResponse = await songService.changeUrl(ticket.songId.toString(), ticket.text, token);
             if (songsResponse.status !== 200) {
                 await ticket.rollbackUpdate(oldStatus, oldPriority)
                 response.status(songsResponse.status).json({
@@ -208,6 +197,9 @@ const updateTicket = async (request, response) => {
                 content: null
             });
         } else {
+            if(ticket.reviewerId) {
+                await ticket.rollbackUpdate(oldStatus, oldPriority)
+            }
             debug("System problem", error);
             response.status(500).send({
                 success: false,
