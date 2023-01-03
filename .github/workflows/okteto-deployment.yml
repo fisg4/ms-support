@@ -8,6 +8,7 @@ name: support deployment
 jobs:
   test:
     uses: fisg4/ms-support/.github/workflows/tests.yml@main
+    secrets: inherit
     
   devflow:
     needs: test
