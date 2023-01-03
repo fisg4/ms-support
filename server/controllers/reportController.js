@@ -9,14 +9,6 @@ const {decodeToken} = require("../auth/jwt");
 const getAllReports = async (request, response, next) => {
     try {
         const result = await Report.find();
-        if (result.length === 0) {
-            response.status(404).send({
-                success: false,
-                message: "No reports found",
-                content: null
-            });
-            return;
-        }
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -49,15 +41,6 @@ const getAllReportsByUserId = async (request, response, next) => {
 
     try {
         const result = await Report.find({ authorId: id });
-        if (result.length === 0) {
-            response.status(404).send({
-                success: false,
-                message: `No reports found for user with id '${id}' `,
-                content: null
-            });
-            return;
-        }
-
         response.status(200).send({
             success: true,
             message: "All reports found",
@@ -79,15 +62,6 @@ const getReportById = async (request, response, next) => {
     const decodedToken = decodeToken(token);
     const id = request.params.id;
 
-    if (decodedToken.role !== "admin" && decodedToken.id !== id) {
-        response.status(401).send({
-            success: false,
-            message: "Unauthorized. You can only read your own reports",
-            content: null
-        });
-        return;
-    }
-
     try {
         const result = await Report.findById(id);
         if (!result) {
@@ -98,6 +72,16 @@ const getReportById = async (request, response, next) => {
             });
             return;
         }
+
+        if (decodedToken.role !== "admin" && decodedToken.id !== result.authorId) {
+            response.status(401).send({
+                success: false,
+                message: "Unauthorized. You can only read your own reports",
+                content: null
+            });
+            return;
+        }
+
         response.status(200).send({
             success: true,
             message: "All reports found",
