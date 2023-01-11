@@ -14,19 +14,17 @@ function getMessage(user, title) {
     return message
 }
 
-const sendEmail = async (response, token, report, user, title) => {
+const sendEmail = async (response, user, title) => {
     try {
         await sendGridMail.send(getMessage(user, title));
     } catch (error) {
-        // Rollback the operation
-        await messageService.unbanMessage(response, token, report.messageId, report.reviewerId.toString());
-        await report.rollbackUpdateReport();
         debug("Services Problem");
         response.status(500).send({
             success: false,
             message: "Some problem sending the email with SendGrid Service",
             content: null
         });
+        return false;
     }
 };
 

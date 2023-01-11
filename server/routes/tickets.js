@@ -14,12 +14,12 @@ router.get('/user/:id',  passport.authenticate("user", { session: false }), tick
 router.get('/:id', passport.authenticate(["admin", "user"], { session: false }), ticketController.getTicket);
 
 /* POST ticket by normal user */
-router.post('/', passport.authenticate(["admin", "user"], { session: false }), ticketController.createTicket);
+router.post('/', passport.authenticate("user", { session: false }), ticketController.createTicket);
 
 /* PATCH ticket by admin */
-router.patch('/:id', passport.authenticate("user", { session: false }), ticketController.updateTicket);
+router.patch('/:id', passport.authenticate("admin", { session: false }), ticketController.updateTicket);
 
 /* DELETE ticket by admin */
-router.delete('/:id', passport.authenticate("user", { session: false }), ticketController.deleteTicket);
+router.delete('/:id', passport.authenticate("admin", { session: false }), ticketController.deleteTicket);
 
 module.exports = router;

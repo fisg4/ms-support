@@ -15,11 +15,13 @@ const reportSchema = new mongoose.Schema({
     },
     title: {
         type: String,
+        minLength: 10,
         maxLength: 100,
         required: true
     },
     text: {
         type: String,
+        minLength: 10,
         maxLength: 255,
         required: true
     },
