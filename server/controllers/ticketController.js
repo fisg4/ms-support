@@ -66,7 +66,7 @@ const getTicket = async (request, response) => {
     try {
         const ticket = await Ticket.getById(id);
         if (!ticket) {
-            response.status(404).json({
+            response.status(404).send({
                 success: false,
                 message: `Ticket with id '${id}' not found`,
                 content: {}
@@ -156,7 +156,7 @@ const updateTicket = async (request, response) => {
 
     var ticket = await Ticket.getById(id);
         if (!ticket) {
-            response.status(404).json({
+            response.status(404).send({
                 success: false,
                 message: `Ticket with id '${id}' not found`,
                 content: {}
@@ -216,17 +216,8 @@ const deleteTicket = async (request, response) => {
     const { id } = request.params;
 
     try {
-        const ticket = await Ticket.getById(id);
-        if (!ticket) {
-            response.status(404).json({
-                success: false,
-                message: `Ticket with id '${id}' not found`,
-                content: {}
-            });
-            return;
-        };
-        await ticket.removeTicket();
-        response.status(204).json({
+        await Ticket.findByIdAndDelete(id);
+        response.status(204).send({
             success: true,
             message: `Ticket deleted`,
             content: {}
@@ -234,10 +225,10 @@ const deleteTicket = async (request, response) => {
 
     } catch (error) {
         debug("System problem", error);
-        response.status(500).send({
+        response.status(404).send({
             success: false,
-            message: "Internal server error. Something went wrong!",
-            content: null
+            message: `Ticket with id '${id}' not found`,
+            content: {}
         });
     }
 };
