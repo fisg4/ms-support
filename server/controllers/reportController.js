@@ -1,6 +1,7 @@
 const Report = require("../models/report");
 const debug = require('debug');
 const sendGridService = require("../services/sendgrid");
+const userService = require("../services/users");
 const messageService = require("../services/messages");
 const {decodeToken} = require("../auth/jwt");
 
@@ -150,11 +151,16 @@ const rollBackReport = async (response, report, bannedMessage) => {
     if (bannedMessage) await messageService.unbanMessage(response, report);
 }
 
-const sendEmailToReporter = async (response, token, report, bannedMessage) => {
-    // TODO: Get user email from database
-    const sendEmail = await sendGridService.sendEmail(response, token, report, { email: "mmolino@us.es", name: "María Elena" }, report.title);
-    //Rollback operation
-    if (sendEmail === false) await rollBackReport(response, report, bannedMessage);
+const sendEmailToReporter = async (response, report, bannedMessage) => {
+    const user = await userService.getUserById(response, report.authorId);
+    if (user === false) {
+        //Rollback operation
+        await rollBackReport(response, report, bannedMessage);
+    } else {
+        const sendEmail = await sendGridService.sendEmail(response, user, report.title);
+        //Rollback operation
+        if (sendEmail === false) await rollBackReport(response, report, bannedMessage);
+    }
 }
 
 /* PATCH report by admin */
@@ -184,14 +190,11 @@ const updateReport = async (request, response, next) => {
 
     try {
         await report.updateReport(decodedToken.id, status);
-        bannedMessage = await messageService.banMessage(response, token, report, report.status === "approved");
+        bannedMessage = await messageService.banMessage(response, report, report.status === "approved");
         //Rollback operation
         if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
         
-        if (report.status === "approved") {
-            await sendEmailToReporter(response, token, report);
-        }
-
+        if (report.status === "approved") await sendEmailToReporter(response, report, bannedMessage);
         if (!(response.statusCode != 200)) {
             response.status(200).send({
                 success: true,
@@ -208,6 +211,7 @@ const updateReport = async (request, response, next) => {
                 content: null
             });
         } else {
+            //Rollback operation
             await rollBackReport(response, report, bannedMessage);
             debug("System problem", error);
             response.status(500).send({
