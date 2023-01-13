@@ -1,6 +1,6 @@
 const app = require('../app');
 const request = require('supertest');
-const Ticket = require('../models/Ticket');
+const Ticket = require('../models/ticket');
 const Song = require('../services/songs')
 const jwt = require('../auth/jwt');
 
