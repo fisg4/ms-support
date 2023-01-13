@@ -66,7 +66,7 @@ const getTicket = async (request, response) => {
     try {
         const ticket = await Ticket.getById(id);
         if (!ticket) {
-            response.status(404).json({
+            response.status(404).send({
                 success: false,
                 message: `Ticket with id '${id}' not found`,
                 content: {}
@@ -156,10 +156,17 @@ const updateTicket = async (request, response) => {
 
     var ticket = await Ticket.getById(id);
         if (!ticket) {
-            response.status(404).json({
+            response.status(404).send({
                 success: false,
                 message: `Ticket with id '${id}' not found`,
                 content: {}
+            });
+            return;
+        } else if (ticket.reviewerId) {
+            response.status(409).send({
+                success: false,
+                message: "Bad request. The ticket has already been reviewed",
+                content: null
             });
             return;
         };
@@ -172,9 +179,10 @@ const updateTicket = async (request, response) => {
 
         if (ticket.status === 'validated' && ticket.songId) {
             const songsResponse = await songService.changeUrl(ticket.songId.toString(), ticket.text, token);
+
             if (songsResponse.status !== 200) {
                 await ticket.rollbackUpdate(oldStatus, oldPriority)
-                response.status(songsResponse.status).json({
+                response.status(songsResponse.status).send({
                     success: false,
                     message: songsResponse.message,
                     content: {}
@@ -216,17 +224,8 @@ const deleteTicket = async (request, response) => {
     const { id } = request.params;
 
     try {
-        const ticket = await Ticket.getById(id);
-        if (!ticket) {
-            response.status(404).json({
-                success: false,
-                message: `Ticket with id '${id}' not found`,
-                content: {}
-            });
-            return;
-        };
-        await ticket.removeTicket();
-        response.status(204).json({
+        await Ticket.findByIdAndDelete(id);
+        response.status(204).send({
             success: true,
             message: `Ticket deleted`,
             content: {}
@@ -234,10 +233,10 @@ const deleteTicket = async (request, response) => {
 
     } catch (error) {
         debug("System problem", error);
-        response.status(500).send({
+        response.status(404).send({
             success: false,
-            message: "Internal server error. Something went wrong!",
-            content: null
+            message: `Ticket with id '${id}' not found`,
+            content: {}
         });
     }
 };
