@@ -44,7 +44,7 @@ const getAllReportsByUserId = async (request, response, next) => {
         const result = await Report.find({ authorId: id });
         response.status(200).send({
             success: true,
-            message: "All reports found",
+            message: "Report found",
             content: result
         });
     } catch (error) {
@@ -85,7 +85,7 @@ const getReportById = async (request, response, next) => {
 
         response.status(200).send({
             success: true,
-            message: "All reports found",
+            message: "Ticket found",
             content: result
         });
     } catch (error) {
@@ -190,11 +190,13 @@ const updateReport = async (request, response, next) => {
 
     try {
         await report.updateReport(decodedToken.id, status);
+
         bannedMessage = await messageService.banMessage(response, report, report.status === "approved");
         //Rollback operation
         if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
         
         if (report.status === "approved") await sendEmailToReporter(response, report, bannedMessage);
+       
         if (!(response.statusCode != 200)) {
             response.status(200).send({
                 success: true,

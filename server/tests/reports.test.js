@@ -1,7 +1,11 @@
 const app = require('../app');
 const request = require('supertest');
 const Report = require('../models/report');
+const Message = require('../services/messages');
+const User = require('../services/users');
+const Sendgrid = require('../services/sendgrid');
 const jwt = require('../auth/jwt');
+const { response } = require('../app');
 
 const REPORT_ENDPOINT = "/support/v1/reports/";
 
@@ -27,6 +31,17 @@ const reports = [{
     "status": "sent",
     "createDate": "2022-12-026T19:33:30.392Z",
     "__v": 0
+}, {
+    "_id": "639cbfae4c8d32218de27c1a",
+    "authorId": "63acaac92087cbc870cb4dc7",
+    "messageId": "6397819481f989ded88dc692",
+    "title": "Ofensive language in the message",
+    "text": "This message contains hate and bad words, pls you have to do something",
+    "status": "approved",
+    "createDate": "2022-12-16T18:57:50.799Z",
+    "__v": 0,
+    "reviewerId": "63aee4412087cbc870cb4dfb",
+    "updateDate": "2022-12-16T20:24:50.924Z"
 }
 ];
 
@@ -55,7 +70,7 @@ describe("Reports API", () => {
                     "Bearer " + ADMIN_TOKEN_JWT
                 ).then((response) => {
                     expect(response.statusCode).toBe(200);
-                    expect(response.body.content).toBeArrayOfSize(2);
+                    expect(response.body.content).toBeArrayOfSize(3);
                     expect(findAllReportsMock).toBeCalled();
                 });
         });
@@ -277,6 +292,125 @@ describe("Reports API", () => {
                     expect(saveReportMock).toBeCalled();
                 });
         });
+    });
+
+    describe("Update /reports/:id", () => {
+        var updateReportMock;
+        var updateRollbackMock;
+        var findReportByIdMock;
+        var bannedMessageMock;
+
+        const reportUpdated = new Report({
+            "_id": "63b3318a3da97aba71958c75",
+            "authorId": "63acaac92087cbc870cb4dc7",
+            "messageId": "63b33181899ac5bfb4274737",
+            "title": "Ofensive language in the message",
+            "text": "This message contains hate and bad words, pls you have to do something",
+            "status": "rejected",
+            "createDate": "2023-01-02T19:33:30.392Z",
+            "__v": 0,
+            "reviewerId": "63aee4412087cbc870cb4dfb",
+            "updateDate": "2022-12-16T20:24:50.924Z"
+        });
+
+        const reportRollback = new Report({
+            "_id": "63b3318a3da97aba71958c75",
+            "authorId": "63acaac92087cbc870cb4dc7",
+            "messageId": "63b33181899ac5bfb4274737",
+            "title": "Ofensive language in the message",
+            "text": "This message contains hate and bad words, pls you have to do something",
+            "status": "sent",
+            "createDate": "2023-01-02T19:33:30.392Z",
+            "__v": 0,
+            "reviewerId": null,
+            "updateDate": null
+        });
+
+        beforeEach(() => {
+            updateReportMock = jest.spyOn(Report.prototype, "updateReport");
+            updateRollbackMock = jest.spyOn(Report.prototype, "rollbackUpdateReport");
+            findReportByIdMock = jest.spyOn(Report, 'findById');
+            bannedMessageMock = jest.spyOn(Message, "banMessage");
+        });
+
+        it("Should return 401 if user is not authenticate", () => {
+            const reportId = reports[0]._id;
+
+            return request(app).patch(REPORT_ENDPOINT + reportId)
+                .then((response) => {
+                    expect(response.statusCode).toBe(401);
+                });
+        });
+
+        it("Should return 401 if user is authenticate", () => {
+            const reportId = reports[0]._id;
+
+            return request(app).patch(REPORT_ENDPOINT + reportId)
+                .set(
+                    "Authorization",
+                    "Bearer " + USER_TOKEN_JWT
+                )
+                .then((response) => {
+                    expect(response.statusCode).toBe(401);
+                });
+        });
+
+
+        it("Should return 404 if the report does not exist", () => {
+            const reportId = "invalidId";
+            findReportByIdMock.mockImplementation(async (reportId) => Promise.resolve(null));
+
+            return request(app).patch(REPORT_ENDPOINT + reportId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                )
+                .then((response) => {
+                    expect(response.statusCode).toBe(404);
+                    expect(findReportByIdMock).toBeCalledWith(reportId);
+                });
+        });
+
+        it("Should return 409 if report has been reviewed yet", () => {
+            const reportId = reports[2]._id;
+            findReportByIdMock.mockImplementation(async (reportId) => Promise.resolve(reports[2]));
+
+            return request(app).patch(REPORT_ENDPOINT + reportId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                )
+                .then((response) => {
+                    expect(response.statusCode).toBe(409);
+                    expect(findReportByIdMock).toBeCalledWith(reportId);
+                });
+        });
+
+        it("Should return 200 if the report has been rejected correctly", () => {
+            const reportId = reports[0]._id; const reviewerId = "63aee4412087cbc870cb4dfb";
+            const status = "rejected"; const response = {};
+            const report = reportUpdated; const v = false;
+            findReportByIdMock.mockImplementation(async (reportId) => Promise.resolve(new Report(reports[0])));
+            updateReportMock.mockImplementation(async (reviewerId, status) => Promise.resolve(reportUpdated));
+            bannedMessageMock.mockImplementation(async (response, report, v) => Promise.resolve(true));
+
+            return request(app).patch(REPORT_ENDPOINT + reportId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                ).send({
+                    status: status
+                })
+                .then((response) => {
+                    expect(response.statusCode).toBe(200);
+                    expect(findReportByIdMock).toBeCalledWith(reportId);
+                    expect(updateReportMock).toBeCalled();
+                    expect(bannedMessageMock).toBeCalled();
+                });
+        });
+
+
+
     });
 
     describe("Delete /reports/:id", () => {
