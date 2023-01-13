@@ -12,11 +12,15 @@ const changeUrl = async (id, songUrl, token) => {
             { 'id': id, 'url': songUrl },
             { headers: { Authorization: `${token}` } }
         );
-        console.log(response);
         return response;
     } catch (error) {
         console.error(error);
-        return null;
+        response.status(500).send({
+            success: false,
+            message: 'Something went wrong...',
+            content: {}
+        });
+        return false;
     }
 };
 

@@ -162,6 +162,13 @@ const updateTicket = async (request, response) => {
                 content: {}
             });
             return;
+        } else if (ticket.reviewerId) {
+            response.status(409).send({
+                success: false,
+                message: "Bad request. The ticket has already been reviewed",
+                content: null
+            });
+            return;
         };
 
         const oldStatus = ticket.status;
@@ -172,9 +179,10 @@ const updateTicket = async (request, response) => {
 
         if (ticket.status === 'validated' && ticket.songId) {
             const songsResponse = await songService.changeUrl(ticket.songId.toString(), ticket.text, token);
+
             if (songsResponse.status !== 200) {
                 await ticket.rollbackUpdate(oldStatus, oldPriority)
-                response.status(songsResponse.status).json({
+                response.status(songsResponse.status).send({
                     success: false,
                     message: songsResponse.message,
                     content: {}

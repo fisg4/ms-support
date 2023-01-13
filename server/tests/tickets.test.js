@@ -1,6 +1,7 @@
 const app = require('../app');
 const request = require('supertest');
 const Ticket = require('../models/Ticket');
+const Song = require('../services/songs')
 const jwt = require('../auth/jwt');
 
 const tickets = [{
@@ -305,9 +306,11 @@ describe("Tickets API", () => {
     describe("Update /tickets/:id", () => {
         var updateTicketByIdMock;
         let findTicketByIdMock;
+        let changeUrlMock;
         beforeEach(() => {
             updateTicketByIdMock = jest.spyOn(Ticket.prototype, "updateTicket");
             findTicketByIdMock = jest.spyOn(Ticket, 'getById');
+            changeUrlMock = jest.spyOn(Song, 'changeUrl');
         });
 
         var newTicket = new Ticket({
@@ -321,7 +324,7 @@ describe("Tickets API", () => {
             "createDate": new Date('January 1, 2023 00:00:00')
         })
 
-        var newTicketUpdated = new Ticket({
+        var newTicketRejected = new Ticket({
             "_id": "63b3318a3da97aba71958d45",
             "authorId": "63acaac92087cbc870cb4dc7",
             "songId": "507f1f77bcf86cd799439011",
@@ -329,6 +332,19 @@ describe("Tickets API", () => {
             "title": "New ticket",
             "text": "This is a new ticket",
             "status": "rejected",
+            "priority": "low",
+            "createDate": new Date('January 1, 2023 00:00:00'),
+            "updateDate": new Date('January 2, 2023 00:00:00')
+        })
+
+        var newTicketValidated = new Ticket({
+            "_id": "63b3318a3da97aba71958d45",
+            "authorId": "63acaac92087cbc870cb4dc7",
+            "songId": "507f1f77bcf86cd799439011",
+            "reviewerId": "63aee4412087cbc870cb4dfb",
+            "title": "New ticket",
+            "text": "This is a new ticket",
+            "status": "validated",
             "priority": "low",
             "createDate": new Date('January 1, 2023 00:00:00'),
             "updateDate": new Date('January 2, 2023 00:00:00')
@@ -378,7 +394,7 @@ describe("Tickets API", () => {
         it('Should return no content when ticket updates correctly', () => {
             const ticketId = newTicket._id.toString();
             findTicketByIdMock.mockImplementation(async (ticketId) => Promise.resolve(newTicket));
-            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketUpdated));
+            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketRejected));
 
             return request(app).patch(TICKET_ENDPOINT + ticketId)
                 .set(
