@@ -124,7 +124,7 @@ const createTicket = async (request, response) => {
             debug("Validation problem when saving");
             response.status(400).send({
                 success: false,
-                message: error.errors.message,
+                message: "Validation problem when saving",
                 content: null
             });
         } else {
@@ -201,7 +201,7 @@ const updateTicket = async (request, response) => {
             debug("Validation problem when updating");
             response.status(400).send({
                 success: false,
-                message: error.errors.message,
+                message: "Validation problem when saving",
                 content: null
             });
         } else {
