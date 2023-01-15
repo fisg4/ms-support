@@ -74,7 +74,7 @@ const getReportById = async (request, response, next) => {
             return;
         }
 
-        if (decodedToken.role !== "admin" && decodedToken.id !== result.authorId) {
+        if (decodedToken.role !== "admin" && decodedToken.id !== result.authorId.toString()) {
             response.status(401).send({
                 success: false,
                 message: "Unauthorized. You can only read your own reports",

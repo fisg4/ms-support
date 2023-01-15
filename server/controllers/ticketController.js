@@ -65,6 +65,7 @@ const getTicket = async (request, response) => {
 
     try {
         const ticket = await Ticket.getById(id);
+
         if (!ticket) {
             response.status(404).send({
                 success: false,
@@ -73,7 +74,7 @@ const getTicket = async (request, response) => {
             });
             return;
         };
-        if (decodedToken.id !== ticket.authorId && decodedToken.role !== "admin") {
+        if (decodedToken.id !== ticket.authorId.toString() && decodedToken.role !== "admin") {
             response.status(401).send({
                 success: false,
                 message: "Unauthorized. You can only read your own tickets",
