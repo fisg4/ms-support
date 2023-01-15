@@ -192,7 +192,7 @@ const updateReport = async (request, response, next) => {
     try {
         updateReport = await report.updateReport(decodedToken.id, status);
 
-        bannedMessage = await messageService.banMessage(response, updateReport, report.status === "approved");
+        bannedMessage = await messageService.banMessage(response, updateReport, updateReport.status === "approved");
         //Rollback operation
         if (bannedMessage === false && updateReport.reviewerId) await updateReport.rollbackUpdateReport();
         if (updateReport.status === "approved") await sendEmailToReporter(response, updateReport, bannedMessage);
@@ -201,7 +201,7 @@ const updateReport = async (request, response, next) => {
             response.status(200).send({
                 success: true,
                 message: "All operations completed successfully.",
-                content: report
+                content: updateReport
             });
         }
     } catch (error) {
