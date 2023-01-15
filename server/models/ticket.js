@@ -80,10 +80,6 @@ ticketSchema.methods.rollbackUpdate = function rollbackUpdate(oldStatus, oldPrio
     return this.save();
 }
 
-ticketSchema.methods.removeTicket = function removeTicket() {
-    this.remove();
-}
-
 const Ticket = mongoose.model('Ticket', ticketSchema);
 
 module.exports = Ticket;
