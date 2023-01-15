@@ -175,10 +175,10 @@ const updateTicket = async (request, response) => {
         const oldPriority = ticket.priority;
 
     try {
-        await ticket.updateTicket(reviewerId, status, priority);
+        const ticketUpdated = await ticket.updateTicket(reviewerId, status, priority);
 
-        if (ticket.status === 'validated' && ticket.songId) {
-            const songsResponse = await songService.changeUrl(ticket.songId.toString(), ticket.text, token);
+        if (ticketUpdated.status === 'validated' && ticketUpdated.songId) {
+            const songsResponse = await songService.changeUrl(ticketUpdated.songId.toString(), ticketUpdated.text, token);
 
             if (songsResponse.status !== 200) {
                 await ticket.rollbackUpdate(oldStatus, oldPriority)
