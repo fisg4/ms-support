@@ -311,6 +311,7 @@ describe("Tickets API", () => {
             updateTicketByIdMock = jest.spyOn(Ticket.prototype, "updateTicket");
             findTicketByIdMock = jest.spyOn(Ticket, 'getById');
             changeUrlMock = jest.spyOn(Song, 'changeUrl');
+            rollbackUpdateMock = jest.spyOn(Ticket.prototype, "rollbackUpdate");
         });
 
         var newTicket = new Ticket({
@@ -324,7 +325,7 @@ describe("Tickets API", () => {
             "createDate": new Date('January 1, 2023 00:00:00')
         })
 
-        var newTicketRejected = new Ticket({
+        var newTicketReviewered = new Ticket({
             "_id": "63b3318a3da97aba71958d45",
             "authorId": "63acaac92087cbc870cb4dc7",
             "songId": "507f1f77bcf86cd799439011",
@@ -391,10 +392,83 @@ describe("Tickets API", () => {
                 });
         });
 
-        it('Should return no content when ticket updates correctly', () => {
+        it("Should return Conflict when trying to update a ticket already reviewered", () => {
+            const ticketId = newTicket._id.toString();
+            findTicketByIdMock.mockImplementation(async (ticketId) => Promise.resolve(newTicketReviewered));
+
+            return request(app).patch(TICKET_ENDPOINT + ticketId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                ).send({
+                    reviewerId: "63aee4412087cbc870cb4dfb",
+                    status: "rejected",
+                    priority: "low"
+                })
+                .then((response) => {
+                    expect(response.status).toBe(409);
+                    expect(findTicketByIdMock).toBeCalledWith(ticketId);
+                });
+        });
+
+        it('Should return no content when ticket is validated', () => {
+            const ticketId = newTicket._id.toString();
+            const songId = newTicketValidated.songId.toString();
+            const text = newTicketValidated.text;
+            findTicketByIdMock.mockImplementation(async (ticketId) => Promise.resolve(newTicket));
+            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketValidated));
+            changeUrlMock.mockImplementation(async (songId, text, ADMIN_TOKEN_JWT) => Promise.resolve({status: 200}))
+
+            return request(app).patch(TICKET_ENDPOINT + ticketId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                ).send({
+                    reviewerId: "63aee4412087cbc870cb4dfb",
+                    status: "validated",
+                    priority: "medium"
+                })
+                .then((response) => {
+                    expect(response.status).toBe(204);
+                    expect(findTicketByIdMock).toBeCalledWith(ticketId);
+                    expect(updateTicketByIdMock).toBeCalled();
+                    expect(changeUrlMock).toBeCalled();
+                });
+        });
+
+        it('Should return bad request when songs integration fail', () => {
+            const ticketId = newTicket._id.toString();
+            const priority = newTicket.priority;
+            const status = newTicket.status;
+            const songId = newTicketValidated.songId.toString();
+            const text = newTicketValidated.text;
+            findTicketByIdMock.mockImplementation(async (ticketId) => Promise.resolve(newTicket));
+            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketValidated));
+            changeUrlMock.mockImplementation(async (songId, text, ADMIN_TOKEN_JWT) => Promise.resolve({status: 400, message: "error"}));
+            rollbackUpdateMock.mockImplementation(async (status, priority) => Promise.resolve(true));
+
+            return request(app).patch(TICKET_ENDPOINT + ticketId)
+                .set(
+                    "Authorization",
+                    "Bearer " + ADMIN_TOKEN_JWT
+                ).send({
+                    reviewerId: "63aee4412087cbc870cb4dfb",
+                    status: "validated",
+                    priority: "medium"
+                })
+                .then((response) => {
+                    expect(response.status).toBe(400);
+                    expect(findTicketByIdMock).toBeCalledWith(ticketId);
+                    expect(updateTicketByIdMock).toBeCalled();
+                    expect(changeUrlMock).toBeCalled();
+                    expect(rollbackUpdateMock).toBeCalled();
+                });
+        });
+
+        it('Should return no content when ticket is rejected', () => {
             const ticketId = newTicket._id.toString();
             findTicketByIdMock.mockImplementation(async (ticketId) => Promise.resolve(newTicket));
-            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketRejected));
+            updateTicketByIdMock.mockImplementation(async (reviewerId, status, priority) => Promise.resolve(newTicketReviewered));
 
             return request(app).patch(TICKET_ENDPOINT + ticketId)
                 .set(
@@ -408,6 +482,7 @@ describe("Tickets API", () => {
                 .then((response) => {
                     expect(response.status).toBe(204);
                     expect(findTicketByIdMock).toBeCalledWith(ticketId);
+                    expect(updateTicketByIdMock).toBeCalled();
                 });
         });
 
