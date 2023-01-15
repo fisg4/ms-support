@@ -170,6 +170,7 @@ const updateReport = async (request, response, next) => {
     const { status } = request.body;
     const reportId = request.params.id;
     let bannedMessage;
+    let updateReport;
 
     const report = await Report.findById(reportId);
     if (!report) {
@@ -189,12 +190,12 @@ const updateReport = async (request, response, next) => {
     }
 
     try {
-        await report.updateReport(decodedToken.id, status);
+        updateReport = await report.updateReport(decodedToken.id, status);
 
-        bannedMessage = await messageService.banMessage(response, report, report.status === "approved");
+        bannedMessage = await messageService.banMessage(response, updateReport, report.status === "approved");
         //Rollback operation
-        if (bannedMessage === false && report.reviewerId) await report.rollbackUpdateReport();
-        if (report.status === "approved") await sendEmailToReporter(response, report, bannedMessage);
+        if (bannedMessage === false && updateReport.reviewerId) await updateReport.rollbackUpdateReport();
+        if (updateReport.status === "approved") await sendEmailToReporter(response, updateReport, bannedMessage);
        
         if (!(response.statusCode != 200)) {
             response.status(200).send({
@@ -213,7 +214,7 @@ const updateReport = async (request, response, next) => {
             });
         } else {
             //Rollback operation
-            await rollBackReport(response, report, bannedMessage);
+            await rollBackReport(response, updateReport, bannedMessage);
             debug("System problem", error);
             response.status(500).send({
                 success: false,

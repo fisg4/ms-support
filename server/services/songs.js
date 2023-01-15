@@ -14,7 +14,6 @@ const changeUrl = async (id, songUrl, token) => {
         );
         return response;
     } catch (error) {
-        console.error(error);
         response.status(500).send({
             success: false,
             message: 'Something went wrong...',
