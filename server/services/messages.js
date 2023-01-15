@@ -12,7 +12,6 @@ const banMessage = async (response, report, isBanned) => {
             { headers: { 'Content-Type': 'application/json'} });
         return bannedMessage.data.content;
     } catch (error) {
-        console.error(error);
         response.status(500).send({
             "success": false,
             messageServiceStatus: error.response.status,
