@@ -8,6 +8,9 @@ deploy:
     --set supportMongoUrl=$SUPPORT_DB_URL
     --set jwtSecret=$JWT_SECRET
     --set supportSendgridApiKey=$SENDGRID_API_KEY
+    --set usersHost=$USERS_HOST
+    --set messagesHost=$MESSAGES_HOST
+    --set songsHost=$SONGS_HOST
 
 dev:
   ms-support:
