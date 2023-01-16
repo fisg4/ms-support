@@ -4,29 +4,10 @@
   "private": true,
   "main": "dist/bin/www.js",
   "scripts": {
-    "start": "nodemon",
-    "build": "npm-run-all clean transpile",
-    "server": "node ./dist/bin/www",
-    "dev": "NODE_ENV=development npm-run-all build server",
-    "prod": "NODE_ENV=production npm-run-all build server",
-    "clean": "rimraf dist",
-    "transpile": "babel ./server --out-dir dist --copy-files",
-    "lint": "eslint ./server",
+    "start": "node ./server/bin/www",
+    "dev": "nodemon ./server/bin/www",
     "test": "jest",
-    "test:watch": "jest --watch",
     "integration": "jest -c jest.integration.config.js"
-  },
-  "nodemonConfig": {
-    "exec": "npm run dev",
-    "watch": [
-      "server/*",
-      "public/*"
-    ],
-    "ignore": [
-      "**/__tests__/**",
-      "*.test.js",
-      "*.spec.js"
-    ]
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
