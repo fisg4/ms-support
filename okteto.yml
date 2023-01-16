@@ -7,6 +7,7 @@ deploy:
     --set support.image=${OKTETO_BUILD_MS_SUPPORT_IMAGE}
     --set supportMongoUrl=$SUPPORT_DB_URL
     --set jwtSecret=$JWT_SECRET
+    --set supportSendgridApiKey=$SENDGRID_API_KEY
 
 dev:
   ms-support:
