@@ -2,6 +2,8 @@ support:
   replicaCount: 1
 
 supportMongoUrl: mongodb://mongo/test
-
 supportSendgridApiKey: b64enc
 jwtSecret: required value
+messagesHost: required value
+usersHost: required value
+songsHost: required value

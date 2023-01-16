@@ -37,6 +37,21 @@ spec:
                 secretKeyRef:
                   name: ms-support-jwt-secrets
                   key: jwt_secret
+            - name: USERS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: ms-support-hosts-secrets
+                  key: users_host
+            - name: MESSAGES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: ms-support-hosts-secrets
+                  key: messages_host
+            - name: SONGS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: ms-support-hosts-secrets
+                  key: songs_host
           ports:
             - name: http
               containerPort: 3000

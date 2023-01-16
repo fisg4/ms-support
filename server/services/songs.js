@@ -2,12 +2,12 @@ const axios = require('axios');
 const urlJoin = require('url-join');
 const debug = require('debug');
 
-const SONG_HOST = process.env.SONG_HOST;
+const SONGS_HOST = process.env.SONGS_HOST;
 const API_VERSION = "/api/v1";
 
 const changeUrl = async (id, songUrl, token) => {
     try {
-        const url = urlJoin(SONG_HOST, API_VERSION, '/songs');
+        const url = urlJoin(SONGS_HOST, API_VERSION, '/songs');
         const response = await axios.put(url,
             { 'id': id, 'url': songUrl },
             { headers: { Authorization: `${token}` } }
