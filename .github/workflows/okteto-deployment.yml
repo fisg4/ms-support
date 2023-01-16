@@ -10,24 +10,21 @@ jobs:
     uses: fisg4/ms-support/.github/workflows/tests.yml@main
     secrets: inherit
     
-  devflow:
+  deploy:
     needs: test
     runs-on: ubuntu-latest
+
     steps:
-    - name: checkout
-      uses: actions/checkout@main
+      - name: checkout
+        uses: actions/checkout@main
 
-    - name: context
-      uses: okteto/context@latest
-      with:
-        token: ${{ secrets.OKTETO_TOKEN }}
+      - name: Okteto Login
+        uses: okteto/login@latest
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
 
-    - name: "Activate Namespace"
-      uses: okteto/namespace@latest
-      with:
-        namespace: fastmusik-marmolpen3
-
-    - name: "Trigger the pipeline"
-      uses: okteto/pipeline@latest
-      with:
-        name: ms-support
+      - name: Okteto Deploy
+        uses: resinas/okteto-push@v1.0.2
+        with:
+          namespace: fastmusik-marmolpen3
+          build: true
