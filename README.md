@@ -1,5 +1,7 @@
 # Support Microservice (ms-support)
 
+![FastMusik Logo](https://raw.githubusercontent.com/fisg4/client/main/src/images/fastMusik_logo.png)
+
 El microservicio de soport (ms-support) es un proyecto desarrollado por el equipo formado por María Elena Molino Peña y Alejandro José Muñoz Aranda, para la aplicación FastMusik, en el contexto de la asignatura Fundamentos de Ingeniería del Software (FIS) del Máster en Ingeniería del Software: Cloud, Datos y Gestión TI, de la Universidad de Sevilla (curso académico, 22-23).
 
 Sirva este documento como manifiesto del trabajo realizado por este equipo.
@@ -12,23 +14,39 @@ El equipo se presenta al nivel de acabado correspondiente a la máxima calificac
 
 De forma general, FastMusik es una aplicación de música.
 
-(Se debe aplicar una descripción general de la aplicación)
+FastMusik presenta gran parte de las características de las redes sociales y las aplicaciones colaborativas. A través de búsquedas en el sistema, los usuarios pueden ir añadiendo canciones a la aplicación, dar likes a aquellas que más les gustan y completar la información de estas añadiendo la letra y el videoclip. Como resultado de la navegación y de ir haciendo diferentes likes, los usuarios podrán comenzar a chatear con otros con sus mismas preferencias musicales.
+
+Además, FastMusik es una aplicación que cuenta con el respaldo de un sistema de soporte, mediante el cual es posible el envío de tickets de incidencias o solicitudes de cambios, así como reportes de mensajes inadecuados que se envían por los chats.
 
 ## Microservicios
 
-(Descripción de cada microservicio)
+FastMusik se divide en 5 microservicios: usuarios, canciones, mensajería, soporte y, por último, una API Gateway. Todos ellos se integran a través del backend para compartir y complementar la información. Estos se integran a su vez con APIs externas como DeepL, Spotify, SendGrid y PurgoMalum. Por otro lado, en la API Gateway se localizan funciones de centralización de operaciones, principalmente el mapeo de endpoints de los diferentes microservicios, para ser un único punto de consumo para el frontend, y para la autenticación de usuarios y generación de JWT.
 
-El microservicio implementado por Juan Carlos Cortés Muñoz y Mario Ruano Fernández es el ms-songs.
+### Microservicio de usuarios
+
+El modelado de datos de este microservicio se basa en una única entidad, la que representa a los usuarios, que contiene toda la información necesaria para la gestión de los mismos. Con ella se presentan las siguientes funcionalidades: operaciones CRUD de la entidad, gestión de credenciales, registro y control de usuarios en los clientes y comprobación de texto ofensivo.
+
+Como puntos destacables, está el uso de una API externa, PurgoMalum, para comprobar los textos que se introducen en el sistema; la autenticación que permite el control de la sesión del usuario y la centralización de la información de los usuarios.
+
+### Microservicio de canciones
+
+Este es el microservicio implementado por Juan Carlos Cortés Muñoz y Mario Ruano Fernández, integrantes del ms-songs.
 
 En lo que respecta a la funcionalidad que ofrece el microservicio ms-songs, en FastMusik, los usuarios podrán buscar canciones, tanto en el sistema como en Spotify, acceder a los videoclips y letras de estas y hacer like en aquellas canciones que más les gusten.
 
 Otras funcionalidades que derivan de este microservicio son la de generar un listado de canciones favoritas de cada usuario, crear salas de chat entre usuarios con los mismos gustos musicales y notificar al servicio de soporte de incorrecciones en el videoclip de una canción.
 
-El microservicio implementado por María Elena Molino Peña y Alejandro José Muñoz Aranda es el de soporte (ms-support).
+### Microservicio de mensajes
 
-El microservicio de soporte es el responsable de gestioinar todas las peticiones o incidencias que se producen en FastMusik. En concreto las principales funcionalidades son reportar mensajes ofensivos y crear incidencias tanto técnicas, desde un formulario general, como notificaciones de URLs incorrectas en las canciones que ofrece la aplicación.
+El modelado de datos de este microservicio se basa en las entidades de Salas y Mensajes, las cuales contienen toda la información para posibilitar las conversaciones entre usuarios del sistema. Este servicio presenta funcionalidades como la recuperación de entidades con paginación, la traducción del texto de los mensajes, las operaciones CRUD de ambas entidades y el reporte de mensajes ofensivos.
 
-Desde un centro de soporte descentralizado de la aplicación, los administradores pueden visualizar un listado con todos los tickets y reportes que crean los usuarios finales. Accediendo a ellos, tienen la posibilidad de rechazarlos o aprobarlos, en cuyo caso el usuario que crea la incidencia recibe un correro con la notificación. Por último, los usuarios pueden ver un listado de los tickets y reportes que han creado y revisar el estado de los mismos.
+Como puntos destacables, el uso de la API externa de DeepL para la traducción y la integración interna para los reportes usando mecanismos de rollback ante fallos.
+
+### Microservicio de soporte
+
+El modelado de datos de este microservicio se basa en las entidades de Tickets y Reports, las cuales contienen toda la información necesaria para mantener el control y el buen funcionamiento del sistema. Este servicio presenta funcionalidades como el envío de notificaciones a los usuarios, las operaciones CRUD con las entidades y la gestión de incidencias.
+
+Como puntos destacables están el uso de la API externa de SendGrid para enviar correos, la tolerancia a fallos desplegando un cliente adicional para la gestión de incidencias y el mecanismo de rollback incluido en la integración con los diferentes microservicios.
 
 ## Customer Agreement
 
