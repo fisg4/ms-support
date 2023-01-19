@@ -73,11 +73,11 @@ Como puntos destacables están el uso de la API externa de SendGrid para enviar 
 
 ## Customer Agreement
 
-Enlace al CA
+El acuerdo de cliente de FastMusik puede revisarse en [FastMusik CA](https://fastmusik-fastmusik-marmolpen3.cloud.okteto.net/customer-agreement).
 
 ## Análisis de la capacidad y pricing
 
-Enlace a ambos
+En cuanto al estudio de la capacidad se encuentra detallado en [Wiki client](https://github.com/fisg4/client/wiki/An%C3%A1lisis-de-la-capacidad). Por otro lado, el plan de precios está disponible desde [FastMusik Pricing](https://fastmusik-fastmusik-marmolpen3.cloud.okteto.net/pricing).
 
 ## API REST de ms-support
 
