@@ -62,7 +62,11 @@ La documentación de la API REST de ms-support está disponible en el siguiente 
 
 ## Requisitos del microservicio
 
-En función de las distintas entidades de dominio del microservicio ms-songs, los requisitos y la justificación de su implementación han sido los que se citan a continuación.
+En función de las distintas entidades de dominio del microservicio ms-support, los requisitos y la justificación de su implementación han sido los que se citan a continuación. Destacar que el desarrollo del microservicio se ha realizado en base a los conceptos vistos en clase y la investigación extra de los miembros de soporte.  
+
+En concreto se han empleado las funciones que mongoose ofrece para acceder a los recurso que se encuentran en la base de datos. Respecto a la respuesta, se genera un diccionario con diferente información de utilidad tanto para su prepocesado en el frontend o su uso durante las peticiones a los endpoints.
+
+Respecto a las integraciones entre cualquier servicio externo, se encuentran en la carperta service. Todas las peticiones se han realizado haciendo uso de axios y añadiendo el token en la cabecera si era necesario. En cuando a la captura del error se ha realizado de la misma manera que se indica anteriormente.
 
 ### Tickets
 | Requisito | Justificación |
