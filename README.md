@@ -8,7 +8,30 @@ Sirva este documento como manifiesto del trabajo realizado por este equipo.
 
 ## Nivel de acabado
 
-El equipo se presenta al nivel de acabado correspondiente a la máxima calificación de 9, cumpliendo con los requisitos para tal fin.
+El equipo se presenta al nivel de acabado correspondiente a la máxima calificación de 9, cumpliendo con los requisitos que se lista para tal fin:
+
+- Microservicio nivel básico completamente implementado.
+- Diseño de Customer Agreement para la aplicación con dos planes de precio, contemplando el uso de dos APIs externas (SendGrid y Spotify).
+- Aplicación basada en microservicios básica implementada.
+- Análisis de límites de capacidad del Custome Agreement.
+- Determinar coster de cada plan del Customer Agreement.
+- Tener API REST documentado con Swagger.
+- Implementación de 5 características de microservicio de nivel avanzado:
+  - Implementar frontend con rutas y navegación.
+  - Usar Redux para gestionar el estado de los componentes de React correspondientes al microservicio.
+  - Consumo de una API externa a través del backend del microservicio (integración con API de SendGrid).
+  - Implementar mecanismo de autenticación basado en JWT.
+  - Mecanismo de Rollback para recuperar estado en caso de fallos en las integraciones. (Propuesta por el microservicio).
+- Implementación de aplicación a nivel básico, cubriendo diferentes integraciones con otros microservicios:
+  - Integración con microservicio de canciones ms-songs, a través de un PUT.
+  - Realización de GET al microservicio de usuarios ms-users.
+  - Integración con microservicio de mensajes ms-messages, a través de dos PATCH.
+- Implementación de requisitos de aplicación a nivel avanzado:
+  - Frontend común
+  - Uso de API Gateway con funcionalidad avanzada (mecanismo de autenticación).
+  - Implementación de un mecanismo de autenticación homogéneo para todos los microservicios (a través de la API Gateway, mediante JWT).
+
+Además de presentación de la aplicación y vídeo de demostración, ambos expuestos en clase. También se recoge un resumen del esfuerzo en horas realizado por cada miembro del microservicio.
 
 ## Descripción de la aplicación
 
