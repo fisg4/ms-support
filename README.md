@@ -91,5 +91,7 @@ Respecto a las integraciones entre cualquier servicio externo, se encuentran en 
 
 ## Análisis de esfuerzos
 
-Enlace a pdf exportado al final de Clockify
+Enlace a PDF resumen exportado desde Clockify:
+[Elena](https://github.com/fisg4/ms-support/blob/support-document/Clockify_Informe_De_Tiempo_Detallado_Elena.pdf)
+[Alejandro](https://github.com/fisg4/ms-support/blob/support-document/Clockify_Informe_De_Tiempo_Detallado_Alejandro.pdf)
 
